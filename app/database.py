@@ -4,12 +4,10 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 
 def seed_db():
-    # Get environment variables for connecting to MySQL
     db_host = os.getenv("MYSQL_HOST", "db")
     db_user = os.getenv("MYSQL_USER")
     db_password = os.getenv("MYSQL_PASSWORD")
@@ -33,7 +31,6 @@ def seed_db():
 
             for table_name, csv_path in csv_files.items():
                 print(f"Processing {csv_path} for table `{table_name}`...")
-                # Open the CSV file and use DictReader to work with header names.
                 with open(csv_path, mode="r", newline="") as csvfile:
                     reader = csv.DictReader(csvfile)
                     headers = reader.fieldnames

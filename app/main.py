@@ -50,7 +50,7 @@ def get_connection():
 class SensorDataIn(BaseModel):
     value: float
     unit: str
-    timestamp: Optional[str] = None  # Format: YYYY-MM-DD HH:MM:SS
+    timestamp: Optional[str] = None
 
 
 class SensorDataUpdate(BaseModel):
@@ -59,9 +59,20 @@ class SensorDataUpdate(BaseModel):
     timestamp: Optional[str] = None
 
 
-@app.get("/")
-async def root():
-    return {"home": "welcome"}
+@app.get("/", response_class=HTMLResponse)
+def get_index():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, "index.html")
+    with open(file_path, "r", encoding="utf-8") as file:
+        return HTMLResponse(content=file.read())
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def get_dashboard():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, "dashboard.html")
+    with open(file_path, "r", encoding="utf-8") as file:
+        return HTMLResponse(content=file.read())
 
 
 @app.get("/api/{sensor_type}")
