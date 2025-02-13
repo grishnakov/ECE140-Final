@@ -155,7 +155,7 @@ def count_sensor_data(sensor_type: str):
         result = cursor.fetchone()
         cursor.close()
         connection.close()
-        return result
+        return result["count"]
     except Error:
         raise HTTPException(status_code=500, detail="Database query error")
 
