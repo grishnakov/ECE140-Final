@@ -101,6 +101,13 @@ def sensor_get(
         results = cursor.fetchall()
         cursor.close()
         connection.close()
+        for record in results:
+            if "value" in record:
+                try:
+                    record["value"] = float(record["value"])
+                except (ValueError, TypeError):
+                    record["value"] = None  # or leave it unchanged if conversion fails
+
         print(f"results: {results}")
         return results
     except Error:
@@ -112,7 +119,6 @@ def create_sensor_data(sensor_type: str, data: SensorDataIn):
     if sensor_type not in VALID_SENSORS:
         raise HTTPException(status_code=404, detail="Invalid sensor type")
 
-    # Use current time if timestamp not provided.
     if data.timestamp is None:
         data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -159,13 +165,6 @@ def get_sensor_data_by_id(sensor_type: str, id: int):
 
 @app.put("/api/{sensor_type}/{id}")
 def update_sensor_data(sensor_type: str, id: int, data: SensorDataUpdate):
-    """
-    PUT /api/{sensor_type}/{id}
-    Update data for a sensor record. The request body may include:
-      - value (optional, float)
-      - unit (optional, string)
-      - timestamp (optional, format: YYYY-MM-DD HH:MM:SS)
-    """
     if sensor_type not in VALID_SENSORS:
         raise HTTPException(status_code=404, detail="Invalid sensor type")
 
