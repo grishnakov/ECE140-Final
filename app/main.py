@@ -18,15 +18,17 @@ load_dotenv()
 VALID_SENSORS = {"temperature", "humidity", "light"}
 
 
-app = FastAPI()
+# app = FastAPI()
 seed_db()
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     seed_db()
-#     yield
-#
-#
-# app = FastAPI(lifespan=lifespan)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    seed_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 print("line 20")
 

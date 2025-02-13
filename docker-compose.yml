@@ -19,30 +19,28 @@
 #     env_file: .env
 services:
   db:
-   image: mysql:latest
-   restart: always
-   ports:
-     - '3306:3306'
-   volumes:
-     - ./data:/var/lib/mysql
-   env_file: .env
-  healthcheck:
-    test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$MYSQL_USER -p$MYSQL_PASSWORD"]
-    interval: 5s
-    timeout: 5s
-    retries: 5
-    start_period: 30s
-
-
+    image: mysql:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+    env_file: .env
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$MYSQL_USER -p$MYSQL_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
   web:
-   build: .
-   ports:
-     - '8000:8000'
-   volumes:
-     - ./app:/code/app
-   depends_on:
-     db:
-       condition: service_healthy
-   env_file: .env
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/code/app
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
 
