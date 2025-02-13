@@ -101,6 +101,12 @@ def sensor_get(
         results = cursor.fetchall()
         cursor.close()
         connection.close()
+        for record in results:
+            if "value" in record and record["value"] is not None:
+                try:
+                    record["value"] = float(record["value"])
+                except (ValueError, TypeError):
+                    record["value"] = None
         return results
     except Error:
         raise HTTPException(status_code=500, detail="Database query error")
@@ -151,6 +157,11 @@ def get_sensor_data_by_id(sensor_type: str, id: int):
         connection.close()
         if not result:
             raise HTTPException(status_code=404, detail="Record not found")
+        if "value" in result and result["value"] is not None:
+            try:
+                result["value"] = float(result["value"])
+            except (ValueError, TypeError):
+                result["value"] = None
         return result
     except Error:
         raise HTTPException(status_code=500, detail="Database query error")
@@ -166,7 +177,7 @@ def update_sensor_data(sensor_type: str, id: int, data: SensorDataUpdate):
 
     if data.value is not None:
         update_fields.append("value = %s")
-        params.append(data.value)
+        params.append(float(data.value))
     if data.unit is not None:
         update_fields.append("unit = %s")
         params.append(data.unit)
