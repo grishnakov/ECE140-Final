@@ -28,7 +28,7 @@ def seed_db():
             csv_files = {
                 "temperature": "./sample/temperature.csv",
                 "humidity": "./sample/humidity.csv",
-                "pressure": "./sample/pressure.csv",
+                "light": "./sample/light.csv",
             }
 
             for table_name, csv_path in csv_files.items():
