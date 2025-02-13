@@ -121,7 +121,8 @@ def create_sensor_data(sensor_type: str, data: SensorDataIn):
     try:
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute(insert_query, (float(data.value), data.unit, data.timestamp))
+        value_float = float(data.value)
+        cursor.execute(insert_query, (value_float, data.unit, data.timestamp))
         connection.commit()
         new_id = cursor.lastrowid
         cursor.close()
