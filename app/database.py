@@ -60,10 +60,17 @@ def seed_db():
 
                     data = []
                     for row in reader:
-                        row_values = [row[col] for col in headers]
+                        row_values = []
+                        for col in headers:
+                            if col.lower() == "value":
+                                try:
+                                    # Convert the value field to a float.
+                                    row_values.append(float(row[col]))
+                                except (ValueError, TypeError):
+                                    row_values.append(None)
+                            else:
+                                row_values.append(row[col])
                         data.append(row_values)
-
-                    # Use executemany() for batch insertion if there is data.
                     if data:
                         cursor.executemany(insert_query, data)
                         connection.commit()
