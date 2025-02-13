@@ -101,14 +101,6 @@ def sensor_get(
         results = cursor.fetchall()
         cursor.close()
         connection.close()
-        for record in results:
-            if "value" in record:
-                try:
-                    record["value"] = float(record["value"])
-                except (ValueError, TypeError):
-                    record["value"] = None  # or leave it unchanged if conversion fails
-
-        print(f"results: {results}")
         return results
     except Error:
         raise HTTPException(status_code=500, detail="Database query error")
@@ -129,7 +121,7 @@ def create_sensor_data(sensor_type: str, data: SensorDataIn):
     try:
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute(insert_query, (data.value, data.unit, data.timestamp))
+        cursor.execute(insert_query, (float(data.value), data.unit, data.timestamp))
         connection.commit()
         new_id = cursor.lastrowid
         cursor.close()
