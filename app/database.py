@@ -10,7 +10,7 @@ load_dotenv()
 
 def seed_db():
     # Get environment variables for connecting to MySQL
-    db_host = os.getenv("MYSQL_HOST", "localhost")
+    db_host = os.getenv("MYSQL_HOST", "db")
     db_user = os.getenv("MYSQL_USER")
     db_password = os.getenv("MYSQL_PASSWORD")
     db_database = os.getenv("MYSQL_DATABASE")
@@ -79,7 +79,3 @@ def seed_db():
         connection.close()
     except Error as e:
         print("Error while connecting to MySQL", e)
-
-
-if __name__ == "__main__":
-    create_tables_from_csv()
