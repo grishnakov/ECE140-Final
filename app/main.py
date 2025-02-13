@@ -138,6 +138,28 @@ def create_sensor_data(sensor_type: str, data: SensorDataIn):
         raise HTTPException(status_code=500, detail="Database insert error")
 
 
+@app.get("/api/{sensor_type}/count")
+def count_sensor_data(sensor_type: str):
+    """
+    GET /api/{sensor_type}/count
+    Returns the total number of rows for the given sensor type.
+    """
+    if sensor_type not in VALID_SENSORS:
+        raise HTTPException(status_code=404, detail="Invalid sensor type")
+
+    count_query = f"SELECT COUNT(*) as count FROM `{sensor_type}`"
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(count_query)
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return result
+    except Error:
+        raise HTTPException(status_code=500, detail="Database query error")
+
+
 @app.get("/api/{sensor_type}/{id}")
 def get_sensor_data_by_id(sensor_type: str, id: int):
     """
@@ -229,28 +251,6 @@ def delete_sensor_data(sensor_type: str, id: int):
         return {"detail": "Record deleted successfully"}
     except Error:
         raise HTTPException(status_code=500, detail="Database delete error")
-
-
-@app.get("/api/{sensor_type}/count")
-def count_sensor_data(sensor_type: str):
-    """
-    GET /api/{sensor_type}/count
-    Returns the total number of rows for the given sensor type.
-    """
-    if sensor_type not in VALID_SENSORS:
-        raise HTTPException(status_code=404, detail="Invalid sensor type")
-
-    count_query = f"SELECT COUNT(*) as count FROM `{sensor_type}`"
-    try:
-        connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute(count_query)
-        result = cursor.fetchone()
-        cursor.close()
-        connection.close()
-        return result
-    except Error:
-        raise HTTPException(status_code=500, detail="Database query error")
 
 
 if __name__ == "__main__":
