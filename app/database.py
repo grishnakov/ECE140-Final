@@ -23,16 +23,16 @@ def seed_db():
 
         if connection.is_connected():
             cursor = connection.cursor()
-            # csv_files = {
-            #     "temperature": "./sample/temperature.csv",
-            #     "humidity": "./sample/humidity.csv",
-            #     "light": "./sample/light.csv",
-            # }
             csv_files = {
-                "temperature": "./sample/temp.csv",
-                "humidity": "./sample/hum.csv",
-                "light": "./sample/lig.csv",
+                "temperature": "./sample/temperature.csv",
+                "humidity": "./sample/humidity.csv",
+                "light": "./sample/light.csv",
             }
+            # csv_files = {
+            #     "temperature": "./sample/temp.csv",
+            #     "humidity": "./sample/hum.csv",
+            #     "light": "./sample/lig.csv",
+            # }
 
             for table_name, csv_path in csv_files.items():
                 print(f"Processing {csv_path} for table `{table_name}`...")
