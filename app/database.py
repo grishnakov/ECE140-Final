@@ -23,10 +23,15 @@ def seed_db():
 
         if connection.is_connected():
             cursor = connection.cursor()
+            # csv_files = {
+            #     "temperature": "./sample/temperature.csv",
+            #     "humidity": "./sample/humidity.csv",
+            #     "light": "./sample/light.csv",
+            # }
             csv_files = {
-                "temperature": "./sample/temperature.csv",
-                "humidity": "./sample/humidity.csv",
-                "light": "./sample/light.csv",
+                "temperature": "./sample/temp.csv",
+                "humidity": "./sample/hum.csv",
+                "light": "./sample/lig.csv",
             }
 
             for table_name, csv_path in csv_files.items():
@@ -50,7 +55,7 @@ def seed_db():
                     """
                     cursor.execute(create_table_query)
                     print(f"Table `{table_name}` created (if it did not exist).")
-
+                    cursor.execute(f"TRUNCATE TABLE `{table_name}`")
                     placeholders = ", ".join(["%s"] * len(headers))
                     columns_list = ", ".join([f"`{col}`" for col in headers])
                     insert_query = f"INSERT INTO `{table_name}` ({columns_list}) VALUES ({placeholders})"

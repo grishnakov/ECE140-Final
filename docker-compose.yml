@@ -37,6 +37,7 @@ services:
     build: .
     ports:
       - "8000:8000"
+      - "6543:6543"
     volumes:
       - ./app:/code/app
     depends_on:
