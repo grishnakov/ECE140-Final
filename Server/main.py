@@ -3,11 +3,16 @@ import json
 from datetime import datetime
 from collections import deque
 import numpy as np
+import os
+from dotenv import load_dotenv
+import time
+import requests
 
+load_dotenv()
 # MQTT Broker settings
 BROKER = "broker.hivemq.com"
 PORT = 1883
-BASE_TOPIC = "lab6espwtf_is_this"
+BASE_TOPIC = os.getenv("TOPIC_PREFIX")
 TOPIC = BASE_TOPIC + "/#"
 
 if (
@@ -28,8 +33,28 @@ def on_connect(client, userdata, flags, rc):
         print(f"Failed to connect with result code {rc}")
 
 
+last_post_time = 0
+
+
+# def on_message(client, userdata, msg):
+#     """Callback for when a message is received."""
+#     try:
+#         # Parse JSON message
+#         payload = json.loads(msg.payload.decode())
+#         current_time = datetime.now()
+#
+#         # If the topic is exactly BASE_TOPIC/readings, print the payload.
+#         if msg.topic == BASE_TOPIC + "/readings":
+#             print(f"[{current_time}] Received sensor data: {payload}")
+#         else:
+#             print(f"[{current_time}] Received message on {msg.topic}: {payload}")
+#
+#     except json.JSONDecodeError:
+#         print(f"\nReceived non-JSON message on {msg.topic}:")
+#         print(f"Payload: {msg.payload.decode()}")
 def on_message(client, userdata, msg):
     """Callback for when a message is received."""
+    global last_post_time
     try:
         # Parse JSON message
         payload = json.loads(msg.payload.decode())
@@ -38,6 +63,35 @@ def on_message(client, userdata, msg):
         # If the topic is exactly BASE_TOPIC/readings, print the payload.
         if msg.topic == BASE_TOPIC + "/readings":
             print(f"[{current_time}] Received sensor data: {payload}")
+
+            # Only process temperature measurements (ignore pressure)
+            if "temperature" in payload:
+                # Enforce a 5-second delay between POST requests
+                if (time.time() - last_post_time) >= 5:
+                    last_post_time = time.time()
+
+                    # Prepare the data for the POST request.
+                    # We assume that the temperature reading is under the key "temperature".
+                    # Adjust the key names as needed.
+                    post_data = {
+                        "value": payload["temperature"],
+                        "unit": "celcius",
+                        "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+
+                    # URL of your FastAPI endpoint for temperature data.
+                    url = "http://localhost:6543/api/temperature"
+
+                    try:
+                        response = requests.post(url, json=post_data)
+                        if response.status_code == 200:
+                            print("POST request successful, temperature data inserted!")
+                        else:
+                            print(
+                                f"POST request failed with status {response.status_code}: {response.text}"
+                            )
+                    except Exception as e:
+                        print("Error sending POST request:", e)
         else:
             print(f"[{current_time}] Received message on {msg.topic}: {payload}")
 
@@ -75,4 +129,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

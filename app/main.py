@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from app.database import seed_db
 
 load_dotenv()
-VALID_SENSORS = {"temperature", "humidity", "light"}
+VALID_SENSORS = {"temperature", "pressure", "light"}
 
 
 # app = FastAPI()
