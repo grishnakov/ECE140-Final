@@ -12,7 +12,7 @@ load_dotenv()
 # MQTT Broker settings
 BROKER = "broker.hivemq.com"
 PORT = 1883
-BASE_TOPIC = os.getenv("TOPIC_PREFIX")
+BASE_TOPIC = os.getenv("BASE_TOPIC")
 TOPIC = BASE_TOPIC + "/#"
 
 if (
