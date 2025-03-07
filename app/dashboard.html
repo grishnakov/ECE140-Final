@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard - Sensor Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wearther - Dashboard</title>
+  <script type="module" src="/static/components/navbar.js"></script></head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
+</head>
 <body>
-  <header>
-    <h1>Sensor Data Dashboard</h1>
-    <nav>
-      <a href="/">Home</a>
-    </nav>
-  </header>
-  
-  <main>
+  <custom-navbar currentPage="anchorToDashboard"></custom-navbar>
+  <h1>DASHBOARD</h1>
+  <h2>WEATHER FORECAST</h2>
+  <div id="weather"></div>
+  <h2>SENSOR READINGS</h2>
+  <div id="sensors">
     <section>
       <h2>Temperature Data</h2>
       <canvas id="temperatureChart"></canvas>
@@ -26,8 +26,7 @@
       <h2>Light Data</h2>
       <canvas id="lightChart"></canvas>
     </section>
-  </main>
-  
+  </div>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       console.log("DOM fully loaded. Initializing dashboard...");

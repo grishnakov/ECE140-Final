@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.mount("/static", StaticFiles(directory="app/components"), name="static")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 def get_connection():
     try:
@@ -71,35 +71,35 @@ def get_index():
 @app.get("/dashboard", response_class=HTMLResponse)
 def get_dashboard():
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "dashboard/dashboard.html")
+    file_path = os.path.join(base_dir, "dashboard.html")
     with open(file_path, "r", encoding="utf-8") as file:
         return HTMLResponse(content=file.read())
     
 @app.get("/wardrobe", response_class=HTMLResponse)
 def get_wardrobe():
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "wardrobe/wardrobe.html")
+    file_path = os.path.join(base_dir, "wardrobe.html")
     with open(file_path, "r", encoding="utf-8") as file:
         return HTMLResponse(content=file.read())
     
 @app.get("/profile", response_class=HTMLResponse)
 def get_profile():
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "profile/profile.html")
+    file_path = os.path.join(base_dir, "profile.html")
     with open(file_path, "r", encoding="utf-8") as file:
         return HTMLResponse(content=file.read())
 
 @app.get("/login", response_class=HTMLResponse)
 def get_profile():
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "login/login.html")
+    file_path = os.path.join(base_dir, "login.html")
     with open(file_path, "r", encoding="utf-8") as file:
         return HTMLResponse(content=file.read())
     
 @app.get("/signup", response_class=HTMLResponse)
 def get_profile():
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "signup/signup.html")
+    file_path = os.path.join(base_dir, "signup.html")
     with open(file_path, "r", encoding="utf-8") as file:
         return HTMLResponse(content=file.read())
 
