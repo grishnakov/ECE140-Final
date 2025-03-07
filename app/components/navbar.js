@@ -50,12 +50,21 @@ class Navbar extends HTMLElement {
       anchorToProfile.innerHTML = `<button>SIGN UP</button>`;
     }
 
-    // Create text input field instead of plain text
+    // Create AI Chat input (or disabled text if not logged in)
     const aiChat = document.createElement("input");
-    aiChat.type = "text";
-    aiChat.placeholder = "What should I wear today?";
-    aiChat.value = "What should I wear today?";
     aiChat.id = "aiChatInput";
+
+    if (isLoggedIn) {
+      aiChat.type = "text";
+      aiChat.placeholder = "What should I wear today?";
+      aiChat.value = "What should I wear today?";
+    } else {
+      aiChat.type = "text";
+      aiChat.value = "Login to ask AI";
+      aiChat.disabled = true; // Make it unclickable
+      aiChat.style.cursor = "not-allowed"; // Optional: Change cursor
+      aiChat.style.opacity = "0.6"; // Optional: Make it look disabled
+    }
 
     // Append elements
     navbar.appendChild(anchorToDashboard);
