@@ -9,7 +9,11 @@
   <custom-navbar currentPage="anchorToWardrobe"></custom-navbar>
   <div id="header">
     <h1>WEARTHER</h1>
-    <button id="add-item">ADD ITEM</button>
+    <form id="add-item-form" action="/api/wardrobe/items" method="POST">
+      <input type="number" id="new-item-id" name="item_id" placeholder="Enter item ID" required />
+      <input id="new-item-name" name="item_name" placeholder="Enter item name" required />
+      <button type="submit" id="add-item">ADD ITEM</button>
+    </form>
   </div>
   <div id="ootd">
     <h4>Based off sensor readings</h4>
