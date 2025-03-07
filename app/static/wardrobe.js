@@ -1,4 +1,4 @@
-import '/static/components/item.js';
+import "/static/components/item.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const itemsContainer = document.getElementById("inventory");
@@ -11,10 +11,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const items = await response.json();
       itemsContainer.innerHTML = ""; // Clear previous content
 
-      items.forEach(item => {
+      items.forEach((item) => {
         const itemElem = document.createElement("item-component");
-        itemElem.setAttribute("item-desc", item.id);
-        itemElem.setAttribute("item-name", item.name);
+        itemElem.setAttribute("item-id", item.id); // Fixed attribute name
+        itemElem.setAttribute("item-name", item.item_name);
+        itemElem.setAttribute("item-desc", item.item_desc);
         itemsContainer.appendChild(itemElem);
       });
     } catch (error) {
@@ -22,27 +23,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-document.getElementById("add-item-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  // Use FormData to capture the form fields
-  const formData = new FormData(event.target);
-  
-  try {
-    const response = await fetch("/api/wardrobe/items", {
-      method: "POST",
-      body: formData, // FormData automatically sets the correct multipart/form-data headers
+  document
+    .getElementById("add-item-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+
+      try {
+        const response = await fetch("/api/wardrobe/items", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          fetchItems(); // Refresh list
+        } else {
+          alert("Failed to add item.");
+        }
+      } catch (error) {
+        console.error("Error adding item:", error);
+      }
     });
 
-    if (response.ok) {
-      fetchItems(); // Refresh list
-    } else {
-      alert("Failed to add item.");
-    }
-  } catch (error) {
-    console.error("Error adding item:", error);
-  }
-});
-
   fetchItems(); // Initial fetch on page load
-
 });
