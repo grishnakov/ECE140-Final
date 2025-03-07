@@ -18,12 +18,12 @@ class ItemComponent extends HTMLElement {
 
     const editButton = document.createElement("button");
     editButton.textContent = "Edit";
-    editButton.addEventListener("click", () => this.editItem(itemId));
+    editButton.addEventListener("click", () => this.openEditPopup(itemId, itemName, itemDesc));
 
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
     deleteButton.className = "delete-btn";
-    deleteButton.addEventListener("click", () => this.deleteItem(itemId, itemContainer));
+    deleteButton.addEventListener("click", () => this.deleteItem(itemId));
 
     itemContainer.appendChild(editButton);
     itemContainer.appendChild(deleteButton);
@@ -54,12 +54,7 @@ class ItemComponent extends HTMLElement {
     this.shadowRoot.appendChild(styles);
   }
 
-  editItem(itemId) {
-    console.log(`Editing item with ID: ${itemId}`);
-    alert(`Editing item with ID: ${itemId}`);
-  }
-
-  async deleteItem(itemId, itemElem) {
+  async deleteItem(itemId) {
     if (confirm("Are you sure you want to delete this item?")) {
       try {
         const response = await fetch(`/api/wardrobe/items/${itemId}`, {
@@ -68,7 +63,7 @@ class ItemComponent extends HTMLElement {
 
         if (response.ok) {
           alert(`Item with ID ${itemId} deleted successfully.`);
-          window.location.reload(); // Refresh the entire page
+          window.location.reload();
         } else {
           alert("Failed to delete item.");
         }
@@ -77,7 +72,87 @@ class ItemComponent extends HTMLElement {
       }
     }
   }
+
+  openEditPopup(itemId, itemName, itemDesc) {
+    // Create the popup
+    const popup = document.createElement("div");
+    popup.classList.add("edit-popup");
+
+    popup.innerHTML = `
+      <div class="popup-content">
+        <h3>Edit Item</h3>
+        <label>Name:</label>
+        <input type="text" id="edit-name" value="${itemName}">
+        <label>Description:</label>
+        <input type="text" id="edit-desc" value="${itemDesc}">
+        <button id="save-edit">Save</button>
+        <button id="cancel-edit">Cancel</button>
+      </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Style the popup
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .edit-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+      }
+      .popup-content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      input {
+        padding: 5px;
+        font-size: 16px;
+      }
+      button {
+        padding: 8px;
+        cursor: pointer;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Handle cancel button
+    document.getElementById("cancel-edit").addEventListener("click", () => {
+      popup.remove();
+    });
+
+    // Handle save button
+    document.getElementById("save-edit").addEventListener("click", async () => {
+      const updatedName = document.getElementById("edit-name").value;
+      const updatedDesc = document.getElementById("edit-desc").value;
+
+      try {
+        const response = await fetch(`/api/wardrobe/items/${itemId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ item_name: updatedName, item_desc: updatedDesc }),
+        });
+
+        if (response.ok) {
+          alert("Item updated successfully!");
+          popup.remove();
+          window.location.reload(); // Refresh the page to reflect changes
+        } else {
+          alert("Failed to update item.");
+        }
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    });
+  }
 }
+
 customElements.define("item-component", ItemComponent);
 
 document.addEventListener("DOMContentLoaded", async () => {
