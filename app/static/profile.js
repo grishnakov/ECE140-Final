@@ -22,19 +22,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  document.getElementById("add-item-form").addEventListener("submit", async (event) => {
+  document.getElementById("add-device-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const newItemID = document.getElementById("new-item-id").value;
-    const newItemName = document.getElementById("new-item-name").value;
+    const newDeviceId = document.getElementById("new-device").value;
 
     try {
       const response = await fetch("/api/devices/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          itemID: newItemID,
-          itemName: newItemName
-         }),
+        body: JSON.stringify({ deviceId: newDeviceId }),
       });
 
       if (response.ok) {

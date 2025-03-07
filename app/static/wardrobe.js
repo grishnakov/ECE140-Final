@@ -1,38 +1,7 @@
 import '/static/components/item.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const inventoryContainer = document.getElementById("inventory");
-
-  const fetchItems = async () => {
-    // Replace this with an actual API call
-
-    return [
-     
-    ];
-  };
-
-  try {
-    const items = await fetchItems();
-
-    items.forEach(item => {
-      // Create a container for the item
-      const itemContainer = document.createElement("div");
-      itemContainer.classList.add("item-wrapper");
-
-      // Create the custom element
-      const itemElement = document.createElement("item-component");
-      itemElement.setAttribute("item-id", item.id);
-      itemElement.setAttribute("item-name", item.name);
-
-      // Append to container
-      itemContainer.appendChild(itemElement);
-
-      // Append container to inventory
-      inventoryContainer.appendChild(itemContainer);
-    });
-  } catch (error) {
-    console.error("Error fetching items:", error);
-  }
+  const itemsContainer = document.getElementById("inventory");
 
   async function fetchItems() {
     try {
@@ -55,17 +24,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("add-item-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const newDeviceId = document.getElementById("new-item").value;
+    const newItemID = document.getElementById("new-item-id").value;
+    const newItemName = document.getElementById("new-item-name").value;
 
     try {
-      const response = await fetch("/api/wardrobe/items", {
+      const response = await fetch("/api/devices/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceId: newDeviceId }),
+        body: JSON.stringify({ 
+          itemID: newItemID,
+          itemName: newItemName
+         }),
       });
 
       if (response.ok) {
-        fetchDevices(); // Refresh list
+        fetchItems(); // Refresh list
       } else {
         alert("Failed to add item.");
       }
@@ -74,7 +47,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  fetchDevices(); // Initial fetch on page load
-
+  fetchItems(); // Initial fetch on page load
 
 });
