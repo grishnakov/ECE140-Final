@@ -392,13 +392,25 @@ def signin(
     user = cursor.fetchone()
     cursor.close()
     connection.close()
+
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
     session_token = str(uuid.uuid4())
     sessions[session_token] = {"id": user["id"], "email": user["email"]}
-    response = RedirectResponse("/profile", status_code=302)
+
+    # Redirect with JavaScript to store isLoggedIn in localStorage
+    response_html = """
+    <script>
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "/profile";
+    </script>
+    """
+
+    response = HTMLResponse(content=response_html)
     response.set_cookie(key="session_token", value=session_token, httponly=True)
     return response
+
 
 
 @app.post("/signout")
@@ -407,7 +419,15 @@ def signout(response: Response, request: Request):
     if session_token and session_token in sessions:
         sessions.pop(session_token)
     response.delete_cookie(key="session_token")
-    return RedirectResponse("/login", status_code=302)
+
+    response_html = """
+    <script>
+        localStorage.removeItem("isLoggedIn");
+        window.location.href = "/login";
+    </script>
+    """
+    
+    return HTMLResponse(content=response_html)
 
 
 # -------------------------------
