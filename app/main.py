@@ -491,13 +491,15 @@ def delete_device(device_id: int, current_user: dict = Depends(get_current_user)
 
 @app.post("/api/wardrobe/items")
 def add_clothing_item(
-    item: ClothingItem, current_user: dict = Depends(get_current_user)
+    item_name: str = Form(...),
+    item_desc: str = Form(...),
+    current_user: dict = Depends(get_current_user),
 ):
     connection = get_connection()
     cursor = connection.cursor()
     cursor.execute(
         "INSERT INTO clothes (user_id, item_name, description) VALUES (%s, %s, %s)",
-        (current_user["id"], item.item_name, item.description),
+        (current_user["id"], item_name, item_desc),
     )
     connection.commit()
     new_id = cursor.lastrowid
