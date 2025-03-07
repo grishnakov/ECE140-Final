@@ -412,7 +412,6 @@ def signin(
     return response
 
 
-
 @app.post("/signout")
 def signout(response: Response, request: Request):
     session_token = request.cookies.get("session_token")
@@ -426,7 +425,7 @@ def signout(response: Response, request: Request):
         window.location.href = "/login";
     </script>
     """
-    
+
     return HTMLResponse(content=response_html)
 
 
@@ -437,9 +436,11 @@ def signout(response: Response, request: Request):
 
 @app.post("/api/devices/register")
 def register_device(
-    device: int = Form(...), current_user: dict = Depends(get_current_user)
+    device: int = Form(...),  # data: DeviceRegistration,  # device: int = Form(...),
+    current_user: dict = Depends(get_current_user),
 ):
     device_id = device
+    # device_id = data.deviceId
     connection = get_connection()
     cursor = connection.cursor()
 

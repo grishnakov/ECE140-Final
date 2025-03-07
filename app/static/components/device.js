@@ -5,15 +5,10 @@ class DeviceComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    const deviceId = this.getAttribute("device-id");
-    const deviceName = this.getAttribute("device-name");
-    const sensorType = this.getAttribute("sensor-type");
+    const deviceId = this.getAttribute("device_id");
 
     const container = document.createElement("div");
     container.classList.add("device");
-
-    const nameElem = document.createElement("h3");
-    nameElem.textContent = `${deviceName} (${sensorType})`;
 
     const idElem = document.createElement("p");
     idElem.textContent = `ID: ${deviceId}`;
@@ -22,9 +17,9 @@ class DeviceComponent extends HTMLElement {
     deleteButton.textContent = "Delete";
     deleteButton.addEventListener("click", () => this.deleteDevice(deviceId));
 
-    container.appendChild(nameElem);
     container.appendChild(idElem);
     container.appendChild(deleteButton);
+
 
     const styles = document.createElement("style");
     styles.textContent = `
