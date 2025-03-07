@@ -24,7 +24,7 @@ class Navbar extends HTMLElement {
     const anchorToDashboard = document.createElement("a");
     anchorToDashboard.id = "anchorToDashboard";
     anchorToDashboard.href = "./dashboard/dashboard.html";
-    anchorToDashboard.innerHTML = `WEATHER`;
+    anchorToDashboard.innerHTML = `WEARTHER`;
 
     // Conditional links
     let anchorToWardrobe = document.createElement("a");
