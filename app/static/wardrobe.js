@@ -16,9 +16,9 @@ class ItemComponent extends HTMLElement {
     itemTitle.textContent = `${itemName} (ID: ${itemId}) - Description: ${itemDesc}`;
     itemContainer.appendChild(itemTitle);
 
-    const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
-    editButton.addEventListener("click", () => this.editItem(itemId));
+    // const editButton = document.createElement("button");
+    // editButton.textContent = "Edit";
+    // editButton.addEventListener("click", () => this.editItem(itemId));
 
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
