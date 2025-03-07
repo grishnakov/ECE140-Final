@@ -56,6 +56,9 @@ class ItemComponent extends HTMLElement {
   editItem(itemId) {
     console.log(`Editing item with ID: ${itemId}`);
     alert(`Editing item with ID: ${itemId}`);
+    
+    const editForm = document.createElement("form");
+    editForm.innerHTML = ''
 
 
   }
