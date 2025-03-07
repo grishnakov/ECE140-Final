@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       items.forEach(item => {
         const itemElem = document.createElement("item-component");
-        itemElem.setAttribute("item-id", item.id);
+        itemElem.setAttribute("item-desc", item.id);
         itemElem.setAttribute("item-name", item.name);
         itemsContainer.appendChild(itemElem);
       });
@@ -24,16 +24,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("add-item-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const newItemID = document.getElementById("new-item-id").value;
+    const newItemDesc = document.getElementById("new-item-desc").value;
     const newItemName = document.getElementById("new-item-name").value;
 
     try {
-      const response = await fetch("/api/devices/register", {
+      const response = await fetch("/api/wardrobe/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          itemID: newItemID,
-          itemName: newItemName
+          itemName: newItemName,
+          itemDesc: newItemDesc
          }),
       });
 
