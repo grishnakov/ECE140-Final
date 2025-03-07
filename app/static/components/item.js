@@ -7,12 +7,13 @@ class ItemComponent extends HTMLElement {
   connectedCallback() {
     const itemId = this.getAttribute("item-id");
     const itemName = this.getAttribute("item-name");
+    const itemDesc = this.getAttribute("item-desc")
 
     const itemContainer = document.createElement("div");
     itemContainer.classList.add("item");
 
     const itemTitle = document.createElement("span");
-    itemTitle.textContent = `${itemName} (ID: ${itemId})`;
+    itemTitle.textContent = `${itemName} (ID: ${itemId}) - Description: ${itemDesc}`;
     itemContainer.appendChild(itemTitle);
 
     const editButton = document.createElement("button");
@@ -55,13 +56,32 @@ class ItemComponent extends HTMLElement {
   editItem(itemId) {
     console.log(`Editing item with ID: ${itemId}`);
     alert(`Editing item with ID: ${itemId}`);
-  }
 
-  deleteItem(itemId) {
-    console.log(`Deleting item with ID: ${itemId}`);
-    alert(`Deleting item with ID: ${itemId}`);
+
+  }
+  
+  async deleteItem(itemId, itemElem) {
+    if (confirm("Are you sure you want to delete this item?")) {
+      try {
+        const response = await fetch(`/api/wardrobe/items/${itemId}`, {
+          method: "DELETE",
+        });
+  
+        if (response.ok) {
+          alert(`Item with ID ${itemId} deleted successfully.`);
+          itemElem.remove();  // Remove the item from the DOM
+        } else {
+          alert("Failed to delete item.");
+        }
+      } catch (error) {
+        console.error("Error deleting item:", error);
+      }
+    }
   }
 }
+
+
+
 
 customElements.define("item-component", ItemComponent);
 

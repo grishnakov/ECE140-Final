@@ -7,7 +7,8 @@
 </head>
 <body>
   <custom-navbar currentPage="anchorToWardrobe"></custom-navbar>
-    <form id="signout-form" action="/signout" method="POST">
+
+  <form id="signout-form" action="/signout" method="POST">
     <button type="submit">Sign Out</button>
   </form>
 
@@ -19,16 +20,19 @@
       <button type="submit" id="add-item">ADD ITEM</button>
     </form>
   </div>
+
   <div id="ootd">
-    <h4>Based off sensor readings</h4>
+    <h4>Based on sensor readings</h4>
     <h3>Outfit of the Day:</h3>
   </div>
-  <div id="inventory">
-  </div>
-  <custom-footer></custom-footer>
-  <script type="module" src="/static/components/navbar.js"></script></head>
-  <script type="module" src="/static/components/footer.js"></script></head>
-  <script type="module" src="/static/wardrobe.js"></script></head>
 
+  <div id="inventory"></div>
+
+  <custom-footer></custom-footer>
+
+  <!-- Corrected script placements -->
+  <script type="module" src="/static/components/navbar.js"></script>
+  <script type="module" src="/static/components/footer.js"></script>
+  <script type="module" src="/static/wardrobe.js"></script>
 </body>
 </html>

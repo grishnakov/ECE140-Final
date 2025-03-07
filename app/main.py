@@ -524,9 +524,16 @@ def add_clothing_item(
     )
     connection.commit()
     new_id = cursor.lastrowid
+
+    # Return the item with id, name, and description
+    cursor.execute("SELECT id, item_name, description FROM clothes WHERE id = %s", (new_id,))
+    item = cursor.fetchone()
+
     cursor.close()
     connection.close()
-    return {"detail": "Clothing item added", "item_id": new_id}
+
+    return {"id": item[0], "name": item[1], "desc": item[2]}  # Return the full item
+
 
 
 @app.get("/api/wardrobe/items")
