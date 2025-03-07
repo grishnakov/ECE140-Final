@@ -23,7 +23,7 @@ class Navbar extends HTMLElement {
     // Dashboard link
     const anchorToDashboard = document.createElement("a");
     anchorToDashboard.id = "anchorToDashboard";
-    anchorToDashboard.href = "./dashboard/dashboard.html";
+    anchorToDashboard.href = "/dashboard";
     anchorToDashboard.innerHTML = `WEARTHER`;
 
     // Conditional links
@@ -33,20 +33,20 @@ class Navbar extends HTMLElement {
     if (isLoggedIn) {
       // Show wardrobe and profile links
       anchorToWardrobe.id = "anchorToWardrobe";
-      anchorToWardrobe.href = "./wardrobe/wardrobe.html";
+      anchorToWardrobe.href = "/wardrobe";
       anchorToWardrobe.innerHTML = `<button>WARDROBE</button>`;
 
       anchorToProfile.id = "anchorToProfile";
-      anchorToProfile.href = "./profile/profile.html";
+      anchorToProfile.href = "/profile";
       anchorToProfile.innerHTML = `<button>PROFILE</button>`;
     } else {
       // Show login and signup instead
       anchorToWardrobe.id = "anchorToLogin";
-      anchorToWardrobe.href = "./login/login.html";
+      anchorToWardrobe.href = "/login";
       anchorToWardrobe.innerHTML = `<button>LOGIN</button>`;
 
       anchorToProfile.id = "anchorToSignup";
-      anchorToProfile.href = "./signup/signup.html";
+      anchorToProfile.href = "/signup";
       anchorToProfile.innerHTML = `<button>SIGN UP</button>`;
     }
 
