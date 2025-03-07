@@ -22,30 +22,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  document.getElementById("add-item-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const newItemDesc = document.getElementById("new-item-desc").value;
-    const newItemName = document.getElementById("new-item-name").value;
+document.getElementById("add-item-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  // Use FormData to capture the form fields
+  const formData = new FormData(event.target);
+  
+  try {
+    const response = await fetch("/api/wardrobe/items", {
+      method: "POST",
+      body: formData, // FormData automatically sets the correct multipart/form-data headers
+    });
 
-    try {
-      const response = await fetch("/api/wardrobe/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          itemName: newItemName,
-          itemDesc: newItemDesc
-         }),
-      });
-
-      if (response.ok) {
-        fetchItems(); // Refresh list
-      } else {
-        alert("Failed to add item.");
-      }
-    } catch (error) {
-      console.error("Error adding item:", error);
+    if (response.ok) {
+      fetchItems(); // Refresh list
+    } else {
+      alert("Failed to add item.");
     }
-  });
+  } catch (error) {
+    console.error("Error adding item:", error);
+  }
+});
 
   fetchItems(); // Initial fetch on page load
 
