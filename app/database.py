@@ -1,5 +1,4 @@
 import os
-import csv
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
@@ -7,7 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def seed_db():
+def init_db():
+    """
+    Initializes the database by creating the necessary tables:
+    """
     db_host = os.getenv("MYSQL_HOST", "db")
     db_user = os.getenv("MYSQL_USER")
     db_password = os.getenv("MYSQL_PASSWORD")
@@ -23,68 +25,196 @@ def seed_db():
 
         if connection.is_connected():
             cursor = connection.cursor()
-            csv_files = {
-                "temperature": "./sample/temperature.csv",
-                "humidity": "./sample/humidity.csv",
-                "light": "./sample/light.csv",
-            }
-            # csv_files = {
-            #     "temperature": "./sample/temp.csv",
-            #     "humidity": "./sample/hum.csv",
-            #     "light": "./sample/lig.csv",
-            # }
 
-            for table_name, csv_path in csv_files.items():
-                print(f"Processing {csv_path} for table `{table_name}`...")
-                with open(csv_path, mode="r", newline="") as csvfile:
-                    reader = csv.DictReader(csvfile)
-                    headers = reader.fieldnames
+            # cursor.execute("""
+            #     CREATE TABLE IF NOT EXISTS temperature (
+            #         device_id INT PRIMARY KEY,
+            #         reading FLOAT,
+            #         timestamp DATETIME
+            #     );
+            # """)
+            # cursor.execute("""
+            #     CREATE TABLE IF NOT EXISTS humidity (
+            #         device_id INT PRIMARY KEY,
+            #         reading FLOAT,
+            #         timestamp DATETIME
+            #     );
+            # """)
+            # cursor.execute("""
+            #     CREATE TABLE IF NOT EXISTS pressure (
+            #         device_id INT PRIMARY KEY,
+            #         reading FLOAT,
+            #         timestamp DATETIME
+            #     );
+            # """)
 
-                    if not headers:
-                        print(f"No headers found in {csv_path}. Skipping.")
-                        continue
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS readings (
+                    device_id INT PRIMARY KEY,
+                    reading FLOAT,
+                    reading_type VARCHAR(255),
+                    timestamp DATETIME
+                );
+            """)
+            # Create users table for storing credentials.
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    email VARCHAR(255) NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    location VARCHAR(255) NOT NULL
+                );
+            """)
 
-                    columns_definition = ", ".join(
-                        [f"`{col}` VARCHAR(255)" for col in headers]
-                    )
-                    create_table_query = f"""
-                    CREATE TABLE IF NOT EXISTS `{table_name}` (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        {columns_definition}
-                    );
-                    """
-                    cursor.execute(create_table_query)
-                    print(f"Table `{table_name}` created (if it did not exist).")
-                    cursor.execute(f"TRUNCATE TABLE `{table_name}`")
-                    placeholders = ", ".join(["%s"] * len(headers))
-                    columns_list = ", ".join([f"`{col}`" for col in headers])
-                    insert_query = f"INSERT INTO `{table_name}` ({columns_list}) VALUES ({placeholders})"
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS user_devices (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    device_id INT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                );
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS clothes (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    item_name VARCHAR(255),
+                    description VARCHAR(255),
+                    timestamp DATETIME,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                );
+            """)
 
-                    data = []
-                    for row in reader:
-                        row_values = []
-                        for col in headers:
-                            if col.lower() == "value":
-                                try:
-                                    # Convert the value field to a float.
-                                    row_values.append(float(row[col]))
-                                except (ValueError, TypeError):
-                                    row_values.append(None)
-                            else:
-                                row_values.append(row[col])
-                        data.append(row_values)
-                    if data:
-                        cursor.executemany(insert_query, data)
-                        connection.commit()
-                        print(
-                            f"Inserted {cursor.rowcount} records into `{table_name}`."
-                        )
-                    else:
-                        print(
-                            f"No data found in {csv_path} to insert into `{table_name}`."
-                        )
-
+            connection.commit()
+            print("Database initialized successfully.")
             cursor.close()
         connection.close()
     except Error as e:
-        print("Error while connecting to MySQL", e)
+        print("error while connecting to mysql", e)
+
+
+def clear_db():
+    """
+    Connects to the database and drops all tables.
+    This function disables foreign key checks before dropping tables
+    and re-enables them afterwards.
+    GENERATED BY GPT
+    """
+    db_host = os.getenv("MYSQL_HOST", "db")
+    db_user = os.getenv("MYSQL_USER")
+    db_password = os.getenv("MYSQL_PASSWORD")
+    db_database = os.getenv("MYSQL_DATABASE")
+
+    try:
+        connection = mysql.connector.connect(
+            host=db_host, user=db_user, password=db_password, database=db_database
+        )
+
+        if connection.is_connected():
+            cursor = connection.cursor()
+            # Disable foreign key checks to avoid issues with dependent tables.
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+
+            # Retrieve all table names.
+            cursor.execute("SHOW TABLES;")
+            tables = cursor.fetchall()
+
+            # Drop each table.
+            for (table_name,) in tables:
+                print(f"Dropping table `{table_name}`...")
+                cursor.execute(f"DROP TABLE IF EXISTS `{table_name}`;")
+
+            # Re-enable foreign key checks.
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+            connection.commit()
+            print("Database cleared: all tables have been dropped.")
+            cursor.close()
+
+        connection.close()
+
+    except Error as e:
+        print("Error while clearing the database:", e)
+
+
+# def seed_db():
+#     db_host = os.getenv("mysql_host", "db")
+#     db_user = os.getenv("mysql_user")
+#     db_password = os.getenv("mysql_password")
+#     db_database = os.getenv("mysql_database")
+#
+#     try:
+#         connection = mysql.connector.connect(
+#             host=db_host,
+#             user=db_user,
+#             password=db_password,
+#             database=db_database,
+#         )
+#
+#         if connection.is_connected():
+#             cursor = connection.cursor()
+#             csv_files = {
+#                 "temperature": "./sample/temperature.csv",
+#                 "humidity": "./sample/humidity.csv",
+#                 "light": "./sample/light.csv",
+#             }
+#             # csv_files = {
+#             #     "temperature": "./sample/temp.csv",
+#             #     "humidity": "./sample/hum.csv",
+#             #     "light": "./sample/lig.csv",
+#             # }
+#
+#             for table_name, csv_path in csv_files.items():
+#                 print(f"processing {csv_path} for table `{table_name}`...")
+#                 with open(csv_path, mode="r", newline="") as csvfile:
+#                     reader = csv.dictreader(csvfile)
+#                     headers = reader.fieldnames
+#
+#                     if not headers:
+#                         print(f"no headers found in {csv_path}. skipping.")
+#                         continue
+#
+#                     columns_definition = ", ".join(
+#                         [f"`{col}` varchar(255)" for col in headers]
+#                     )
+#                     create_table_query = f"""
+#                     create table if not exists `{table_name}` (
+#                         id int auto_increment primary key,
+#                         {columns_definition}
+#                     );
+#                     """
+#                     cursor.execute(create_table_query)
+#                     print(f"table `{table_name}` created (if it did not exist).")
+#                     cursor.execute(f"truncate table `{table_name}`")
+#                     placeholders = ", ".join(["%s"] * len(headers))
+#                     columns_list = ", ".join([f"`{col}`" for col in headers])
+#                     insert_query = f"insert into `{table_name}` ({columns_list}) values ({placeholders})"
+#
+#                     data = []
+#                     for row in reader:
+#                         row_values = []
+#                         for col in headers:
+#                             if col.lower() == "value":
+#                                 try:
+#                                     # convert the value field to a float.
+#                                     row_values.append(float(row[col]))
+#                                 except (valueerror, typeerror):
+#                                     row_values.append(none)
+#                             else:
+#                                 row_values.append(row[col])
+#                         data.append(row_values)
+#                     if data:
+#                         cursor.executemany(insert_query, data)
+#                         connection.commit()
+#                         print(
+#                             f"inserted {cursor.rowcount} records into `{table_name}`."
+#                         )
+#                     else:
+#                         print(
+#                             f"no data found in {csv_path} to insert into `{table_name}`."
+#                         )
+#
+#             cursor.close()
+#         connection.close()
+#     except error as e:
+#         print("error while connecting to mysql", e)

@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function fetchDevices() {
     try {
-      const response = await fetch("/api/get-registered-devices");
+      const response = await fetch("/api/devices");
       if (!response.ok) throw new Error("Failed to fetch devices");
 
       const devices = await response.json();
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const newDeviceId = document.getElementById("new-device").value;
 
     try {
-      const response = await fetch("/api/add-device", {
+      const response = await fetch("/api/devices/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceId: newDeviceId }),
