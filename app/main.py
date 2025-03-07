@@ -518,22 +518,28 @@ def add_clothing_item(
 ):
     connection = get_connection()
     cursor = connection.cursor()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cursor.execute(
-        "INSERT INTO clothes (user_id, item_name, description) VALUES (%s, %s, %s)",
-        (current_user["id"], item_name, item_desc),
+        "INSERT INTO clothes (user_id, item_name, item_desc, timestamp) VALUES (%s, %s, %s, %s)",
+        (current_user["id"], item_name, item_desc, timestamp),
     )
     connection.commit()
     new_id = cursor.lastrowid
 
     # Return the item with id, name, and description
-    cursor.execute("SELECT id, item_name, description FROM clothes WHERE id = %s", (new_id,))
+    cursor.execute(
+        "SELECT id, item_name, item_desc FROM clothes WHERE id = %s", (new_id,)
+    )
     item = cursor.fetchone()
 
     cursor.close()
     connection.close()
 
-    return {"id": item[0], "name": item[1], "desc": item[2]}  # Return the full item
-
+    return {
+        "id": item[0],
+        "itme_name": item[1],
+        "item_desc": item[2],
+    }  # Return the full item
 
 
 @app.get("/api/wardrobe/items")
