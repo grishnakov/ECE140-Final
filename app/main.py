@@ -417,9 +417,9 @@ def signout(response: Response, request: Request):
 
 @app.post("/api/devices/register")
 def register_device(
-    data: DeviceRegistration, current_user: dict = Depends(get_current_user)
+    device: int = Form(...), current_user: dict = Depends(get_current_user)
 ):
-    device_id = data.deviceId
+    device_id = device
     connection = get_connection()
     cursor = connection.cursor()
 
