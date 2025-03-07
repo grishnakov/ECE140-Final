@@ -20,6 +20,7 @@ class ItemComponent extends HTMLElement {
     editButton.textContent = "Edit";
     editButton.addEventListener("click", () => this.openEditPopup(itemId, itemName, itemDesc));
 
+
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
     deleteButton.className = "delete-btn";
