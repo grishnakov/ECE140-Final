@@ -80,7 +80,7 @@ def init_db():
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT NOT NULL,
                     item_name VARCHAR(255),
-                    itme_desc VARCHAR(255),
+                    item_desc VARCHAR(255),
                     timestamp DATETIME,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 );

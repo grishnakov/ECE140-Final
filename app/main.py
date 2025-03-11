@@ -552,13 +552,43 @@ def get_clothing_items(current_user: dict = Depends(get_current_user)):
     connection.close()
     return items
 
+
+# @app.put("/api/wardrobe/items/{item_id}")
+# def update_clothing_item(
+#     item_id: int,
+#     data: ClothingItem,
+#     current_user: dict = Depends(get_current_user),
+# ):
+#     # raise HTTPException(
+#     #     status_code=201,
+#     #     detail=f"name: {data.item_name}, desc: {data.description}, id: {item_id}, uid:{current_user['id']}",
+#     # )
+#     update_query = "UPDATE clothes SET item_name = %s, description = %s WHERE id = %s AND user_id = %s"
+#     params = (data.item_name, data.description, item_id, current_user["id"])
+#
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor()
+#         cursor.execute(update_query, params)
+#         connection.commit()
+#
+#         if cursor.rowcount == 0:
+#             raise HTTPException(status_code=404, detail="Clothing item not found")
+#
+#         cursor.close()
+#         connection.close()
+#         return {"detail": "Clothing item updated successfully"}
+#     except Error:
+#         raise HTTPException(status_code=500, detail="Database update error")
+
+
 @app.put("/api/wardrobe/items/{item_id}")
 def update_clothing_item(
     item_id: int,
     data: ClothingItem,
     current_user: dict = Depends(get_current_user),
 ):
-    update_query = "UPDATE wardrobe SET item_name = %s, description = %s WHERE id = %s AND user_id = %s"
+    update_query = "UPDATE clothes SET item_name = %s, item_desc = %s WHERE id = %s AND user_id = %s"
     params = (data.item_name, data.description, item_id, current_user["id"])
 
     try:
