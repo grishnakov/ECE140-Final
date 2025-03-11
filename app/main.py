@@ -24,7 +24,7 @@ from app.database import init_db, clear_db
 
 load_dotenv()
 # Updated sensor types to match our database initialization (temperature, humidity, pressure)
-VALID_SENSORS = {"temperature", "humidity", "pressure"}
+VALID_SENSORS = {"temperature", "pressure"}
 
 # Simple global session store for demonstration purposes only.
 sessions = {}
@@ -69,6 +69,7 @@ def get_connection():
 
 # For sensor data endpoints
 class SensorDataIn(BaseModel):
+    device_id: int
     value: float
     unit: str
     timestamp: Optional[str] = None
@@ -230,14 +231,14 @@ def create_sensor_data(sensor_type: str, data: SensorDataIn):
         raise HTTPException(status_code=404, detail="Invalid sensor type")
     if data.timestamp is None:
         data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    insert_query = (
-        f"INSERT INTO `{sensor_type}` (value, unit, timestamp) VALUES (%s, %s, %s)"
-    )
+    insert_query = "INSERT INTO readings (device_id, reading, reading_type, timestamp) VALUES (%s, %s, %s, %s)"
     try:
         connection = get_connection()
         cursor = connection.cursor()
         value_float = float(data.value)
-        cursor.execute(insert_query, (value_float, data.unit, data.timestamp))
+        cursor.execute(
+            insert_query, (data.device_id, data.value, data.unit, data.timestamp)
+        )
         connection.commit()
         new_id = cursor.lastrowid
         cursor.close()

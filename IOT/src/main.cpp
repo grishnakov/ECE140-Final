@@ -3,10 +3,10 @@
 #include <string>
 #include <Arduino.h>
 #include <Adafruit_BMP085.h>
-
+#define DEVICE_ID 1
 // MQTT client - using descriptive client ID and topic
 const char* clientID = CLIENT_ID; 
-const char* topicPrefix = TOPIC_PREFIX;
+const char* topicPrefix = TOPIC_PREFIX; 
 
 ECE140_MQTT mqtt(clientID, topicPrefix);
 ECE140_WIFI wifi;
@@ -37,12 +37,13 @@ void loop() {
 
     int temp = bmp.readTemperature();
     int pressure = bmp.readPressure();
+    // int humidity = bmp.read
 
     char jsonBuffer[128];
 
-    sprintf(jsonBuffer, "{\"temperature\":%d,\"pressure\":%d}", temp, pressure);
+    sprintf(jsonBuffer, "{\"temperature\":%d,\"pressure\":%d,\"device_id\":%d}", temp, pressure,DEVICE_ID);
 
     mqtt.publishMessage("readings",String(jsonBuffer));
 
-    delay(5000);
+    delay(5001);
 }

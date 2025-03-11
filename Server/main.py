@@ -10,7 +10,7 @@ import requests
 
 load_dotenv()
 # MQTT Broker settings
-BROKER = "broker.hivemq.com"
+BROKER = "test.mosquitto.org"  # broker.hivemq.com
 PORT = 1883
 BASE_TOPIC = os.getenv("BASE_TOPIC")
 TOPIC = BASE_TOPIC + "/#"
@@ -36,20 +36,6 @@ def on_connect(client, userdata, flags, rc):
 last_post_time = 0
 
 
-# def on_message(client, userdata, msg):
-#     """Callback for when a message is received."""
-#     try:
-#         payload = json.loads(msg.payload.decode())
-#         current_time = datetime.now()
-#
-#         if msg.topic == BASE_TOPIC + "/readings":
-#             print(f"[{current_time}] Received sensor data: {payload}")
-#         else:
-#             print(f"[{current_time}] Received message on {msg.topic}: {payload}")
-#
-#     except json.JSONDecodeError:
-#         print(f"\nReceived non-JSON message on {msg.topic}:")
-#         print(f"Payload: {msg.payload.decode()}")
 def on_message(client, userdata, msg):
     """Callback for when a message is received."""
     global last_post_time
@@ -64,16 +50,17 @@ def on_message(client, userdata, msg):
                 if (time.time() - last_post_time) >= 5:
                     last_post_time = time.time()
 
-                    post_data = {
+                    post_data_temp = {
+                        "device_id": payload["device_id"],
                         "value": payload["temperature"],
                         "unit": "celcius",
                         "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S"),
                     }
 
-                    url = "http://localhost:6543/api/temperature"
+                    url = "http://localhost:6543/api/sensors/temperature"
 
                     try:
-                        response = requests.post(url, json=post_data)
+                        response = requests.post(url, json=post_data_temp)
                         if response.status_code == 200:
                             print("POST request successful, temperature data inserted!")
                         else:
@@ -82,6 +69,27 @@ def on_message(client, userdata, msg):
                             )
                     except Exception as e:
                         print("Error sending POST request:", e)
+
+                    post_data_press = {
+                        "device_id": payload["device_id"],
+                        "value": payload["pressure"],
+                        "unit": "Pa",
+                        "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+
+                    url = "http://localhost:6543/api/sensors/pressure"
+
+                    try:
+                        response = requests.post(url, json=post_data_press)
+                        if response.status_code == 200:
+                            print("POST request successful, pressure data inserted!")
+                        else:
+                            print(
+                                f"POST request failed with status {response.status_code}: {response.text}"
+                            )
+                    except Exception as e:
+                        print("Error sending POST request:", e)
+
         else:
             print(f"[{current_time}] Received message on {msg.topic}: {payload}")
 
