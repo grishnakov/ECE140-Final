@@ -545,9 +545,23 @@ def add_clothing_item(
 
 @app.get("/api/wardrobe/items")
 def get_clothing_items(current_user: dict = Depends(get_current_user)):
+    return get_user_clothes(current_user["id"])
+
+
+# def get_clothing_items(current_user: dict = Depends(get_current_user)):
+#     connection = get_connection()
+#     cursor = connection.cursor(dictionary=True)
+#     cursor.execute("SELECT * FROM clothes WHERE user_id = %s", (current_user["id"],))
+#     items = cursor.fetchall()
+#     cursor.close()
+#     connection.close()
+#     return items
+
+
+def get_user_clothes(user_id: int):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM clothes WHERE user_id = %s", (current_user["id"],))
+    cursor.execute("SELECT * FROM clothes WHERE user_id = %s", (user_id,))
     items = cursor.fetchall()
     cursor.close()
     connection.close()
@@ -626,6 +640,54 @@ def delete_clothing_item(item_id: int, current_user: dict = Depends(get_current_
     cursor.close()
     connection.close()
     return {"detail": "Clothing item deleted"}
+
+
+# -------------------------------
+# Chat endpoints
+# -------------------------------
+
+from openai import OpenAI
+
+client = OpenAI(api_key=open("/home/user/Documents/apikey.txt", "r").read().strip())
+
+
+class ChatRequest(BaseModel):
+    prompt: str
+    weather: str
+
+
+SYSTEM_PROMPT = "You are a fashion assistant helping users pick clothes, read the user prompt, determine for when the user needs the outfit, and based on the items they have in the wradrobe, as well as the weathehr for the time period mentioned in the user prompt, suggest a few items they can wear. If there are not enough items, suggest generic items of clothing most people would have, but explicitly state that these items are assumed for the user to own. Available clothes and weather are as follows:\n"
+
+
+@app.post("/chat")
+def chat(
+    request: ChatRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    This endpoint accepts a chat prompt about clothes (or any topic)
+    and returns a response from an OpenAI GPT model.
+    """
+    try:
+        wardrobe = get_user_clothes(current_user["id"])
+        wardrobe_text = f"Available wardrobe items: {wardrobe}"
+        weather_data = request.weather
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"{SYSTEM_PROMPT}+{wardrobe_text}+{weather_data}",
+                },
+                {"role": "user", "content": request.prompt},
+            ],
+            max_tokens=150,
+            temperature=0.7,
+        )
+        answer = response.choices[0].message.content
+        return {"response": answer}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
