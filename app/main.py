@@ -17,6 +17,7 @@ from fastapi import (
     Response as FastAPIResponse,
     Form,
 )
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uuid
 from openai import OpenAI
@@ -94,6 +95,9 @@ class ClothingItem(BaseModel):
 # -------------------------------
 # HTML Page Routes
 # -------------------------------
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("static/favicon.ico")
 
 
 @app.get("/", response_class=HTMLResponse)
