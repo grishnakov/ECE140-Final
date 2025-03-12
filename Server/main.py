@@ -10,7 +10,7 @@ import requests
 
 load_dotenv()
 # MQTT Broker settings
-BROKER = "test.mosquitto.org"  # broker.hivemq.com
+BROKER = "broker.emqx.io"
 PORT = 1883
 BASE_TOPIC = os.getenv("BASE_TOPIC")
 TOPIC = BASE_TOPIC + "/#"
@@ -98,7 +98,7 @@ def on_message(client, userdata, msg):
         print(f"Payload: {msg.payload.decode()}")
 
 
-def main():
+def mqtt_listener():
     print("Creating MQTT client...")
     client = mqtt.Client()
 
