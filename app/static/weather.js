@@ -54,7 +54,7 @@ async function getWeather() {
 
         // Add each weather period
         periods.forEach((period, index) => {
-            if (index < 14) {
+            if (index < 14 && !period.name.includes("Night") ) {
                 const weatherItem = document.createElement("div");
                 weatherItem.classList.add("weather-item");
                 weatherItem.innerHTML = `

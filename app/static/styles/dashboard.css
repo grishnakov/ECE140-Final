@@ -3,12 +3,13 @@
 #weather {
     margin: 20px;
     text-align: center;
+    align-self: center;
 }
 
 /* Container for the 7-day forecast */
 .forecast-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
+    grid-template-columns: repeat(auto-fill, minmax(8em, 1fr));
     gap: 20px;
     margin-top: 20px;
 }
