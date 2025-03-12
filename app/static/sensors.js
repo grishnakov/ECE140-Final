@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
             let url = `/api/sensors/${sensorType}`;
             const queryParams = [];
             if (startDate) queryParams.push(`start-date=${encodeURIComponent(startDate)}`);
-            if (endDate) queryParams.push(`end-date=${encodeURIComponent(endDate)}`);
+            // if (endDate) queryParams.push(`end-date=${encodeURIComponent(endDate)}`);
             if (queryParams.length > 0) {
                 url += "?" + queryParams.join("&");
             }
@@ -166,4 +166,5 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     initDashboard();
+    setInterval(initDashboard, 30000);
 });

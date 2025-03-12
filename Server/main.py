@@ -57,7 +57,7 @@ def on_message(client, userdata, msg):
                         "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S"),
                     }
 
-                    url = "http://localhost:6543/api/sensors/temperature"
+                    url = "http://ece140-final.onrender.com/api/sensors/temperature"
 
                     try:
                         response = requests.post(url, json=post_data_temp)
@@ -77,7 +77,7 @@ def on_message(client, userdata, msg):
                         "timestamp": current_time.strftime("%Y-%m-%d %H:%M:%S"),
                     }
 
-                    url = "http://localhost:6543/api/sensors/pressure"
+                    url = "http://ece140-final.onrender.com/api/sensors/pressure"
 
                     try:
                         response = requests.post(url, json=post_data_press)
