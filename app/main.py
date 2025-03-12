@@ -648,7 +648,7 @@ def delete_clothing_item(item_id: int, current_user: dict = Depends(get_current_
 
 from openai import OpenAI
 
-client = OpenAI(api_key=open("/home/user/Documents/apikey.txt", "r").read().strip())
+client = OpenAI(api_key=os.getenv("API_KEY"))
 
 
 class ChatRequest(BaseModel):
