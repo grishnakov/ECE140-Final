@@ -22,7 +22,9 @@ import uuid
 from openai import OpenAI
 
 from app.database import init_db, clear_db
+from fastapi.templating import Jinja2Templates
 
+templates = Jinja2Templates(directory="app")
 load_dotenv()
 # Updated sensor types to match our database initialization (temperature, humidity, pressure)
 VALID_SENSORS = {"temperature", "pressure"}
@@ -40,6 +42,7 @@ def get_current_user(request: Request):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    clear_db()
     init_db()  # Corrected function name
     yield
 
@@ -52,9 +55,12 @@ def get_connection():
     try:
         connection = mysql.connector.connect(
             host=os.getenv("MYSQL_HOST", "db"),
+            port=int(os.getenv("MYSQL_PORT")),
             user=os.getenv("MYSQL_USER"),
             password=os.getenv("MYSQL_PASSWORD"),
             database=os.getenv("MYSQL_DATABASE"),
+            ssl_ca=os.getenv("MYSQL_SSL_CA"),  # Path to CA certificate file
+            ssl_verify_identity=True,
         )
         if connection.is_connected():
             return connection
@@ -132,11 +138,12 @@ def get_profile_page(request: Request):
 
 
 @app.get("/login", response_class=HTMLResponse)
-def get_login_page():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "login.html")
-    with open(file_path, "r", encoding="utf-8") as file:
-        return HTMLResponse(content=file.read())
+def get_login_page(request: Request):
+    # base_dir = os.path.dirname(os.path.abspath(__file__))
+    # file_path = os.path.join(base_dir, "login.html")
+    # with open(file_path, "r", encoding="utf-8") as file:
+    #     return HTMLResponse(content=file.read())
+    return templates.TemplateResponse("login.html", {"request": request, "error": ""})
 
 
 @app.get("/signup", response_class=HTMLResponse)
@@ -388,166 +395,6 @@ def delete_sensor_data(
         raise HTTPException(status_code=500, detail="Database delete error")
 
 
-# @app.get("/api/sensors/{sensor_type}")
-# def sensor_get(
-#     sensor_type: str,
-#     order_by: Optional[str] = Query(None, alias="order-by"),
-#     start_date: Optional[str] = Query(None, alias="start-date"),
-#     end_date: Optional[str] = Query(None, alias="end-date"),
-# ):
-#     if sensor_type not in VALID_SENSORS:
-#         raise HTTPException(status_code=404, detail="Invalid sensor type")
-#     query = f"SELECT * FROM `{sensor_type}`"
-#     conditions = []
-#     params = []
-#     if start_date:
-#         conditions.append("timestamp >= %s")
-#         params.append(start_date)
-#     if end_date:
-#         conditions.append("timestamp <= %s")
-#         params.append(end_date)
-#     if conditions:
-#         query += " WHERE " + " AND ".join(conditions)
-#     if order_by:
-#         if order_by not in ["value", "timestamp"]:
-#             raise HTTPException(status_code=400, detail="Invalid order-by parameter")
-#         query += f" ORDER BY `{order_by}`"
-#     try:
-#         connection = get_connection()
-#         cursor = connection.cursor(dictionary=True)
-#         cursor.execute(query, params)
-#         results = cursor.fetchall()
-#         cursor.close()
-#         connection.close()
-#         for record in results:
-#             if "value" in record and record["value"] is not None:
-#                 try:
-#                     record["value"] = float(record["value"])
-#                 except (ValueError, TypeError):
-#                     record["value"] = None
-#         return results
-#     except Error:
-#         raise HTTPException(status_code=500, detail="Database query error")
-#
-#
-# @app.post("/api/sensors/{sensor_type}")
-# def create_sensor_data(sensor_type: str, data: SensorDataIn):
-#     if sensor_type not in VALID_SENSORS:
-#         raise HTTPException(status_code=404, detail="Invalid sensor type")
-#     if data.timestamp is None:
-#         data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#     insert_query = "INSERT INTO readings (device_id, reading, reading_type, timestamp) VALUES (%s, %s, %s, %s)"
-#     try:
-#         connection = get_connection()
-#         cursor = connection.cursor()
-#         value_float = float(data.value)
-#         cursor.execute(
-#             insert_query, (data.device_id, data.value, data.unit, data.timestamp)
-#         )
-#         connection.commit()
-#         new_id = cursor.lastrowid
-#         cursor.close()
-#         connection.close()
-#         return {"id": new_id}
-#     except Error:
-#         raise HTTPException(status_code=500, detail="Database insert error")
-#
-#
-# @app.get("/api/sensors/{sensor_type}/count")
-# def count_sensor_data(sensor_type: str):
-#     if sensor_type not in VALID_SENSORS:
-#         raise HTTPException(status_code=404, detail="Invalid sensor type")
-#     count_query = f"SELECT COUNT(*) as count FROM `{sensor_type}`"
-#     try:
-#         connection = get_connection()
-#         cursor = connection.cursor(dictionary=True)
-#         cursor.execute(count_query)
-#         result = cursor.fetchone()
-#         cursor.close()
-#         connection.close()
-#         return result["count"]
-#     except Error:
-#         raise HTTPException(status_code=500, detail="Database query error")
-#
-#
-# @app.get("/api/sensors/{sensor_type}/{id}")
-# def get_sensor_data_by_id(sensor_type: str, id: int):
-#     if sensor_type not in VALID_SENSORS:
-#         raise HTTPException(status_code=404, detail="Invalid sensor type")
-#     select_query = f"SELECT * FROM `{sensor_type}` WHERE id = %s"
-#     try:
-#         connection = get_connection()
-#         cursor = connection.cursor(dictionary=True)
-#         cursor.execute(select_query, (id,))
-#         result = cursor.fetchone()
-#         cursor.close()
-#         connection.close()
-#         if not result:
-#             raise HTTPException(status_code=404, detail="Record not found")
-#         if "value" in result and result["value"] is not None:
-#             try:
-#                 result["value"] = float(result["value"])
-#             except (ValueError, TypeError):
-#                 result["value"] = None
-#         return result
-#     except Error:
-#         raise HTTPException(status_code=500, detail="Database query error")
-#
-#
-# @app.put("/api/sensors/{sensor_type}/{id}")
-# def update_sensor_data(sensor_type: str, id: int, data: SensorDataUpdate):
-#     if sensor_type not in VALID_SENSORS:
-#         raise HTTPException(status_code=404, detail="Invalid sensor type")
-#     update_fields = []
-#     params = []
-#     if data.value is not None:
-#         update_fields.append("value = %s")
-#         params.append(float(data.value))
-#     if data.unit is not None:
-#         update_fields.append("unit = %s")
-#         params.append(data.unit)
-#     if data.timestamp is not None:
-#         update_fields.append("timestamp = %s")
-#         params.append(data.timestamp)
-#     if not update_fields:
-#         raise HTTPException(status_code=400, detail="No fields to update")
-#     update_query = (
-#         f"UPDATE `{sensor_type}` SET " + ", ".join(update_fields) + " WHERE id = %s"
-#     )
-#     params.append(id)
-#     try:
-#         connection = get_connection()
-#         cursor = connection.cursor()
-#         cursor.execute(update_query, params)
-#         connection.commit()
-#         if cursor.rowcount == 0:
-#             raise HTTPException(status_code=404, detail="Record not found")
-#         cursor.close()
-#         connection.close()
-#         return {"detail": "Record updated successfully"}
-#     except Error:
-#         raise HTTPException(status_code=500, detail="Database update error")
-#
-#
-# @app.delete("/api/sensors/{sensor_type}/{id}")
-# def delete_sensor_data(sensor_type: str, id: int):
-#     if sensor_type not in VALID_SENSORS:
-#         raise HTTPException(status_code=404, detail="Invalid sensor type")
-#     delete_query = f"DELETE FROM `{sensor_type}` WHERE id = %s"
-#     try:
-#         connection = get_connection()
-#         cursor = connection.cursor()
-#         cursor.execute(delete_query, (id,))
-#         connection.commit()
-#         if cursor.rowcount == 0:
-#             raise HTTPException(status_code=404, detail="Record not found")
-#         cursor.close()
-#         connection.close()
-#         return {"detail": "Record deleted successfully"}
-#     except Error:
-#         raise HTTPException(status_code=500, detail="Database delete error")
-
-
 # -------------------------------
 # User Management Endpoints
 # -------------------------------
@@ -579,13 +426,21 @@ def signup(
     # Create a session token and set it as an httpOnly cookie
     session_token = str(uuid.uuid4())
     sessions[session_token] = {"id": user_id, "email": email}
-    response = RedirectResponse("/dashboard", status_code=302)
+    response_html = """
+    <script>
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "/dashboard";
+    </script>
+    """
+
+    response = HTMLResponse(content=response_html)
     response.set_cookie(key="session_token", value=session_token, httponly=True)
     return response
 
 
 @app.post("/login")
 def signin(
+    request: Request,
     email: str = Form(...),
     password: str = Form(...),
 ):
@@ -600,7 +455,10 @@ def signin(
     connection.close()
 
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        # Instead of raising an HTTPException, re-render the login page with an error message.
+        return templates.TemplateResponse(
+            "login.html", {"request": request, "error": "Invalid credentials"}
+        )
 
     session_token = str(uuid.uuid4())
     sessions[session_token] = {"id": user["id"], "email": user["email"]}

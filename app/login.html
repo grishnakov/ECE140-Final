@@ -1,3 +1,36 @@
+<!-- <!DOCTYPE html> -->
+<!-- <html lang="en"> -->
+<!-- <head> -->
+<!--   <meta charset="UTF-8"> -->
+<!--   <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+<!--   <title>Wearther - Login</title> -->
+<!--   <link rel="stylesheet" href="/static/styles/login-signup.css"> -->
+<!--   <link rel="stylesheet" href="/static/styles/global.css" /> -->
+<!---->
+<!-- </head> -->
+<!-- <body> -->
+<!--   <h1>WEARTHER</h1> -->
+<!--   <h2>Welcome back!</h2> -->
+<!--   <form action="/login" method="POST"> -->
+<!--     <h3>LOGIN</h3> -->
+<!--     <div> -->
+<!--       <label for="email">Email:</label> -->
+<!--       <input type="text" id="email" name="email" required /> -->
+<!--     </div> -->
+<!--     <div> -->
+<!--       <label for="password">Password:</label> -->
+<!--       <input type="password" id="password" name="password" required /> -->
+<!--     </div> -->
+<!--     <button type="submit">Login</button> -->
+<!--   </form> -->
+<!--   <span><p>First time here?</p><a href="/signup"><button class="signup">SIGN UP</button> -->
+<!--   </a></span> -->
+<!--   <custom-footer></custom-footer> -->
+<!--   <script type="module" src="/static/components/footer.js"></script> -->
+<!--   <script type="module" src="/static/components/navbar.js"></script> -->
+<!---->
+<!--   </body> -->
+<!-- </html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,12 +38,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wearther - Login</title>
   <link rel="stylesheet" href="/static/styles/login-signup.css">
-  <link rel="stylesheet" href="/static/styles/global.css" />
-
+  <link rel="stylesheet" href="/static/styles/global.css">
 </head>
 <body>
   <h1>WEARTHER</h1>
   <h2>Welcome back!</h2>
+  
+  <!-- Display error if present -->
+  {% if error %}
+  <div class="error">{{ error }}</div>
+  {% endif %}
+
   <form action="/login" method="POST">
     <h3>LOGIN</h3>
     <div>
@@ -23,11 +61,13 @@
     </div>
     <button type="submit">Login</button>
   </form>
-  <span><p>First time here?</p><a href="/signup"><button class="signup">SIGN UP</button>
-  </a></span>
+  <span>
+    <p>First time here?</p>
+    <a href="/signup"><button class="signup">SIGN UP</button></a>
+  </span>
   <custom-footer></custom-footer>
   <script type="module" src="/static/components/footer.js"></script>
   <script type="module" src="/static/components/navbar.js"></script>
-
-  </body>
+</body>
 </html>
+
