@@ -68,20 +68,6 @@ def get_connection():
 # -------------------------------
 
 
-# For sensor data endpoints
-class SensorDataIn(BaseModel):
-    device_id: int
-    value: float
-    unit: str
-    timestamp: Optional[str] = None
-
-
-class SensorDataUpdate(BaseModel):
-    value: Optional[float] = None
-    unit: Optional[str] = None
-    timestamp: Optional[str] = None
-
-
 # For user management endpoints
 class UserCredentials(BaseModel):
     username: str
@@ -180,8 +166,20 @@ async def clear_database():  # TODO: REMOVE PRIOR TO PRODUCTION DEPLOYMENT
 
 
 # -------------------------------
-# Sensor Endpoints (Existing)
+# Sensor Endpoints
 # -------------------------------
+
+
+# Assume these models are defined somewhere in your code:
+class SensorDataIn(BaseModel):
+    device_id: int
+    value: float
+    timestamp: Optional[str] = None
+
+
+class SensorDataUpdate(BaseModel):
+    value: Optional[float] = None
+    timestamp: Optional[str] = None
 
 
 @app.get("/api/sensors/{sensor_type}")
@@ -190,24 +188,31 @@ def sensor_get(
     order_by: Optional[str] = Query(None, alias="order-by"),
     start_date: Optional[str] = Query(None, alias="start-date"),
     end_date: Optional[str] = Query(None, alias="end-date"),
+    current_user: dict = Depends(get_current_user),
 ):
     if sensor_type not in VALID_SENSORS:
         raise HTTPException(status_code=404, detail="Invalid sensor type")
-    query = f"SELECT * FROM `{sensor_type}`"
-    conditions = []
-    params = []
+
+    # Base query: join readings and user_devices to ensure the reading's device belongs to the current user
+    query = (
+        "SELECT r.* FROM readings r "
+        "JOIN user_devices ud ON r.device_id = ud.device_id "
+        "WHERE r.reading_type = %s AND ud.user_id = %s"
+    )
+    params = [sensor_type, current_user["id"]]
+
+    # Optional filters
     if start_date:
-        conditions.append("timestamp >= %s")
+        query += " AND r.timestamp >= %s"
         params.append(start_date)
     if end_date:
-        conditions.append("timestamp <= %s")
+        query += " AND r.timestamp <= %s"
         params.append(end_date)
-    if conditions:
-        query += " WHERE " + " AND ".join(conditions)
     if order_by:
         if order_by not in ["value", "timestamp"]:
             raise HTTPException(status_code=400, detail="Invalid order-by parameter")
-        query += f" ORDER BY `{order_by}`"
+        query += f" ORDER BY r.`{order_by}`"
+
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
@@ -215,12 +220,14 @@ def sensor_get(
         results = cursor.fetchall()
         cursor.close()
         connection.close()
+
+        # Ensure "value" is returned as a float if possible
         for record in results:
-            if "value" in record and record["value"] is not None:
+            if "reading" in record and record["reading"] is not None:
                 try:
-                    record["value"] = float(record["value"])
+                    record["reading"] = float(record["reading"])
                 except (ValueError, TypeError):
-                    record["value"] = None
+                    record["reading"] = None
         return results
     except Error:
         raise HTTPException(status_code=500, detail="Database query error")
@@ -232,13 +239,18 @@ def create_sensor_data(sensor_type: str, data: SensorDataIn):
         raise HTTPException(status_code=404, detail="Invalid sensor type")
     if data.timestamp is None:
         data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    insert_query = "INSERT INTO readings (device_id, reading, reading_type, timestamp) VALUES (%s, %s, %s, %s)"
+
+    # Use the sensor_type from the URL (not from the payload) to set reading_type
+    insert_query = (
+        "INSERT INTO readings (device_id, reading, reading_type, timestamp) "
+        "VALUES (%s, %s, %s, %s)"
+    )
     try:
         connection = get_connection()
         cursor = connection.cursor()
-        value_float = float(data.value)
         cursor.execute(
-            insert_query, (data.device_id, data.value, data.unit, data.timestamp)
+            insert_query,
+            (data.device_id, float(data.value), sensor_type, data.timestamp),
         )
         connection.commit()
         new_id = cursor.lastrowid
@@ -250,14 +262,22 @@ def create_sensor_data(sensor_type: str, data: SensorDataIn):
 
 
 @app.get("/api/sensors/{sensor_type}/count")
-def count_sensor_data(sensor_type: str):
+def count_sensor_data(
+    sensor_type: str,
+    current_user: dict = Depends(get_current_user),
+):
     if sensor_type not in VALID_SENSORS:
         raise HTTPException(status_code=404, detail="Invalid sensor type")
-    count_query = f"SELECT COUNT(*) as count FROM `{sensor_type}`"
+
+    count_query = (
+        "SELECT COUNT(*) as count FROM readings r "
+        "JOIN user_devices ud ON r.device_id = ud.device_id "
+        "WHERE r.reading_type = %s AND ud.user_id = %s"
+    )
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
-        cursor.execute(count_query)
+        cursor.execute(count_query, (sensor_type, current_user["id"]))
         result = cursor.fetchone()
         cursor.close()
         connection.close()
@@ -267,57 +287,73 @@ def count_sensor_data(sensor_type: str):
 
 
 @app.get("/api/sensors/{sensor_type}/{id}")
-def get_sensor_data_by_id(sensor_type: str, id: int):
+def get_sensor_data_by_id(
+    sensor_type: str, id: int, current_user: dict = Depends(get_current_user)
+):
     if sensor_type not in VALID_SENSORS:
         raise HTTPException(status_code=404, detail="Invalid sensor type")
-    select_query = f"SELECT * FROM `{sensor_type}` WHERE id = %s"
+
+    select_query = (
+        "SELECT r.* FROM readings r "
+        "JOIN user_devices ud ON r.device_id = ud.device_id "
+        "WHERE r.id = %s AND r.reading_type = %s AND ud.user_id = %s"
+    )
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
-        cursor.execute(select_query, (id,))
+        cursor.execute(select_query, (id, sensor_type, current_user["id"]))
         result = cursor.fetchone()
         cursor.close()
         connection.close()
         if not result:
             raise HTTPException(status_code=404, detail="Record not found")
-        if "value" in result and result["value"] is not None:
+        if "reading" in result and result["reading"] is not None:
             try:
-                result["value"] = float(result["value"])
+                result["reading"] = float(result["reading"])
             except (ValueError, TypeError):
-                result["value"] = None
+                result["reading"] = None
         return result
     except Error:
         raise HTTPException(status_code=500, detail="Database query error")
 
 
 @app.put("/api/sensors/{sensor_type}/{id}")
-def update_sensor_data(sensor_type: str, id: int, data: SensorDataUpdate):
+def update_sensor_data(
+    sensor_type: str,
+    id: int,
+    data: SensorDataUpdate,
+    current_user: dict = Depends(get_current_user),
+):
     if sensor_type not in VALID_SENSORS:
         raise HTTPException(status_code=404, detail="Invalid sensor type")
+
     update_fields = []
     params = []
     if data.value is not None:
-        update_fields.append("value = %s")
+        update_fields.append("reading = %s")
         params.append(float(data.value))
-    if data.unit is not None:
-        update_fields.append("unit = %s")
-        params.append(data.unit)
     if data.timestamp is not None:
         update_fields.append("timestamp = %s")
         params.append(data.timestamp)
     if not update_fields:
         raise HTTPException(status_code=400, detail="No fields to update")
+
     update_query = (
-        f"UPDATE `{sensor_type}` SET " + ", ".join(update_fields) + " WHERE id = %s"
+        "UPDATE readings SET "
+        + ", ".join(update_fields)
+        + " WHERE id = %s AND reading_type = %s AND device_id IN (SELECT device_id FROM user_devices WHERE user_id = %s)"
     )
-    params.append(id)
+    params.extend([id, sensor_type, current_user["id"]])
+
     try:
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(update_query, params)
         connection.commit()
         if cursor.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Record not found")
+            raise HTTPException(
+                status_code=404, detail="Record not found or not authorized"
+            )
         cursor.close()
         connection.close()
         return {"detail": "Record updated successfully"}
@@ -326,22 +362,190 @@ def update_sensor_data(sensor_type: str, id: int, data: SensorDataUpdate):
 
 
 @app.delete("/api/sensors/{sensor_type}/{id}")
-def delete_sensor_data(sensor_type: str, id: int):
+def delete_sensor_data(
+    sensor_type: str, id: int, current_user: dict = Depends(get_current_user)
+):
     if sensor_type not in VALID_SENSORS:
         raise HTTPException(status_code=404, detail="Invalid sensor type")
-    delete_query = f"DELETE FROM `{sensor_type}` WHERE id = %s"
+
+    delete_query = (
+        "DELETE FROM readings WHERE id = %s AND reading_type = %s "
+        "AND device_id IN (SELECT device_id FROM user_devices WHERE user_id = %s)"
+    )
     try:
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute(delete_query, (id,))
+        cursor.execute(delete_query, (id, sensor_type, current_user["id"]))
         connection.commit()
         if cursor.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Record not found")
+            raise HTTPException(
+                status_code=404, detail="Record not found or not authorized"
+            )
         cursor.close()
         connection.close()
         return {"detail": "Record deleted successfully"}
     except Error:
         raise HTTPException(status_code=500, detail="Database delete error")
+
+
+# @app.get("/api/sensors/{sensor_type}")
+# def sensor_get(
+#     sensor_type: str,
+#     order_by: Optional[str] = Query(None, alias="order-by"),
+#     start_date: Optional[str] = Query(None, alias="start-date"),
+#     end_date: Optional[str] = Query(None, alias="end-date"),
+# ):
+#     if sensor_type not in VALID_SENSORS:
+#         raise HTTPException(status_code=404, detail="Invalid sensor type")
+#     query = f"SELECT * FROM `{sensor_type}`"
+#     conditions = []
+#     params = []
+#     if start_date:
+#         conditions.append("timestamp >= %s")
+#         params.append(start_date)
+#     if end_date:
+#         conditions.append("timestamp <= %s")
+#         params.append(end_date)
+#     if conditions:
+#         query += " WHERE " + " AND ".join(conditions)
+#     if order_by:
+#         if order_by not in ["value", "timestamp"]:
+#             raise HTTPException(status_code=400, detail="Invalid order-by parameter")
+#         query += f" ORDER BY `{order_by}`"
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor(dictionary=True)
+#         cursor.execute(query, params)
+#         results = cursor.fetchall()
+#         cursor.close()
+#         connection.close()
+#         for record in results:
+#             if "value" in record and record["value"] is not None:
+#                 try:
+#                     record["value"] = float(record["value"])
+#                 except (ValueError, TypeError):
+#                     record["value"] = None
+#         return results
+#     except Error:
+#         raise HTTPException(status_code=500, detail="Database query error")
+#
+#
+# @app.post("/api/sensors/{sensor_type}")
+# def create_sensor_data(sensor_type: str, data: SensorDataIn):
+#     if sensor_type not in VALID_SENSORS:
+#         raise HTTPException(status_code=404, detail="Invalid sensor type")
+#     if data.timestamp is None:
+#         data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     insert_query = "INSERT INTO readings (device_id, reading, reading_type, timestamp) VALUES (%s, %s, %s, %s)"
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor()
+#         value_float = float(data.value)
+#         cursor.execute(
+#             insert_query, (data.device_id, data.value, data.unit, data.timestamp)
+#         )
+#         connection.commit()
+#         new_id = cursor.lastrowid
+#         cursor.close()
+#         connection.close()
+#         return {"id": new_id}
+#     except Error:
+#         raise HTTPException(status_code=500, detail="Database insert error")
+#
+#
+# @app.get("/api/sensors/{sensor_type}/count")
+# def count_sensor_data(sensor_type: str):
+#     if sensor_type not in VALID_SENSORS:
+#         raise HTTPException(status_code=404, detail="Invalid sensor type")
+#     count_query = f"SELECT COUNT(*) as count FROM `{sensor_type}`"
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor(dictionary=True)
+#         cursor.execute(count_query)
+#         result = cursor.fetchone()
+#         cursor.close()
+#         connection.close()
+#         return result["count"]
+#     except Error:
+#         raise HTTPException(status_code=500, detail="Database query error")
+#
+#
+# @app.get("/api/sensors/{sensor_type}/{id}")
+# def get_sensor_data_by_id(sensor_type: str, id: int):
+#     if sensor_type not in VALID_SENSORS:
+#         raise HTTPException(status_code=404, detail="Invalid sensor type")
+#     select_query = f"SELECT * FROM `{sensor_type}` WHERE id = %s"
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor(dictionary=True)
+#         cursor.execute(select_query, (id,))
+#         result = cursor.fetchone()
+#         cursor.close()
+#         connection.close()
+#         if not result:
+#             raise HTTPException(status_code=404, detail="Record not found")
+#         if "value" in result and result["value"] is not None:
+#             try:
+#                 result["value"] = float(result["value"])
+#             except (ValueError, TypeError):
+#                 result["value"] = None
+#         return result
+#     except Error:
+#         raise HTTPException(status_code=500, detail="Database query error")
+#
+#
+# @app.put("/api/sensors/{sensor_type}/{id}")
+# def update_sensor_data(sensor_type: str, id: int, data: SensorDataUpdate):
+#     if sensor_type not in VALID_SENSORS:
+#         raise HTTPException(status_code=404, detail="Invalid sensor type")
+#     update_fields = []
+#     params = []
+#     if data.value is not None:
+#         update_fields.append("value = %s")
+#         params.append(float(data.value))
+#     if data.unit is not None:
+#         update_fields.append("unit = %s")
+#         params.append(data.unit)
+#     if data.timestamp is not None:
+#         update_fields.append("timestamp = %s")
+#         params.append(data.timestamp)
+#     if not update_fields:
+#         raise HTTPException(status_code=400, detail="No fields to update")
+#     update_query = (
+#         f"UPDATE `{sensor_type}` SET " + ", ".join(update_fields) + " WHERE id = %s"
+#     )
+#     params.append(id)
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor()
+#         cursor.execute(update_query, params)
+#         connection.commit()
+#         if cursor.rowcount == 0:
+#             raise HTTPException(status_code=404, detail="Record not found")
+#         cursor.close()
+#         connection.close()
+#         return {"detail": "Record updated successfully"}
+#     except Error:
+#         raise HTTPException(status_code=500, detail="Database update error")
+#
+#
+# @app.delete("/api/sensors/{sensor_type}/{id}")
+# def delete_sensor_data(sensor_type: str, id: int):
+#     if sensor_type not in VALID_SENSORS:
+#         raise HTTPException(status_code=404, detail="Invalid sensor type")
+#     delete_query = f"DELETE FROM `{sensor_type}` WHERE id = %s"
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor()
+#         cursor.execute(delete_query, (id,))
+#         connection.commit()
+#         if cursor.rowcount == 0:
+#             raise HTTPException(status_code=404, detail="Record not found")
+#         cursor.close()
+#         connection.close()
+#         return {"detail": "Record deleted successfully"}
+#     except Error:
+#         raise HTTPException(status_code=500, detail="Database delete error")
 
 
 # -------------------------------
@@ -375,7 +579,7 @@ def signup(
     # Create a session token and set it as an httpOnly cookie
     session_token = str(uuid.uuid4())
     sessions[session_token] = {"id": user_id, "email": email}
-    response = RedirectResponse("/profile", status_code=302)
+    response = RedirectResponse("/dashboard", status_code=302)
     response.set_cookie(key="session_token", value=session_token, httponly=True)
     return response
 
@@ -405,7 +609,7 @@ def signin(
     response_html = """
     <script>
         localStorage.setItem("isLoggedIn", "true");
-        window.location.href = "/profile";
+        window.location.href = "/dashboard";
     </script>
     """
 
@@ -547,16 +751,6 @@ def add_clothing_item(
 @app.get("/api/wardrobe/items")
 def get_clothing_items(current_user: dict = Depends(get_current_user)):
     return get_user_clothes(current_user["id"])
-
-
-# def get_clothing_items(current_user: dict = Depends(get_current_user)):
-#     connection = get_connection()
-#     cursor = connection.cursor(dictionary=True)
-#     cursor.execute("SELECT * FROM clothes WHERE user_id = %s", (current_user["id"],))
-#     items = cursor.fetchall()
-#     cursor.close()
-#     connection.close()
-#     return items
 
 
 def get_user_clothes(user_id: int):

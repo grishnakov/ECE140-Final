@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wearther - Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
   <link rel="stylesheet" href="/static/styles/dashboard.css" />
 </head>
 <body>
@@ -25,21 +27,19 @@
   <div id="weather"></div> <!-- This div will be populated dynamically with a grid -->
   
   <!-- Sensor Readings Section -->
-  <h2>SENSOR READINGS</h2>
-  <div id="sensors">
-    <section>
-      <h2>Temperature Data</h2>
-      <canvas id="temperatureChart"></canvas>
-    </section>
-    <section>
-      <h2>Humidity Data</h2>
-      <canvas id="humidityChart"></canvas>
-    </section>
-    <section>
-      <h2>Light Data</h2>
-      <canvas id="lightChart"></canvas>
-    </section>
-  </div>
+<!-- Sensor Readings Section -->
+<h2>SENSOR READINGS (Last Week)</h2>
+<div id="sensors" style="display: flex; gap: 2rem;">
+  <section style="flex: 1;">
+    <h2>Temperature Data</h2>
+    <canvas id="temperatureChart"></canvas>
+  </section>
+  <section style="flex: 1;">
+    <h2>Pressure Data</h2>
+    <canvas id="pressureChart"></canvas>
+  </section>
+</div>
+
 
   <custom-footer></custom-footer>
 

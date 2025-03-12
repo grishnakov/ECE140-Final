@@ -1,35 +1,71 @@
+<!-- <!DOCTYPE html> -->
+<!-- <html lang="en"> -->
+<!-- <head> -->
+<!--   <meta charset="UTF-8"> -->
+<!--   <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+<!---->
+<!-- </head> -->
+<!-- <body> -->
+<!--   <custom-navbar currentPage="anchorToWardrobe"></custom-navbar> -->
+<!---->
+<!---->
+<!--   <div id="header"> -->
+<!--     <h1>Wardrobe</h1> -->
+<!--       <h2>Add item</h2> -->
+<!--     <form id="add-item-form" action="/api/wardrobe/items" method="POST"> -->
+<!--       <input type="text" id="new-item-name" name="item_name" placeholder="Enter item name" required /> -->
+<!--       <input type="text" id="new-item-desc" name="item_desc" placeholder="Enter item description" required /> -->
+<!--       <button type="submit" id="add-item">ADD ITEM</button> -->
+<!--     </form> -->
+<!--   </div> -->
+<!--   <h2>Inventory</h2> -->
+<!--   <div id="inventory"></div> -->
+<!---->
+<!--   <custom-footer></custom-footer> -->
+<!---->
+<!--   <!-- Corrected script placements --> -->
+<!--   <script type="module" src="/static/components/navbar.js"></script> -->
+<!--   <script type="module" src="/static/components/footer.js"></script> -->
+<!--   <script type="module" src="/static/wardrobe.js"></script> -->
+<!-- </body> -->
+<!-- </html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wearther - Wardrobe</title>
+  <style>
+    /* Inventory container uses a grid that tiles items at 300px minimum */
+    #inventory {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 10px;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
   <custom-navbar currentPage="anchorToWardrobe"></custom-navbar>
 
-  
   <div id="header">
-    <h1>WEARTHER</h1>
+    <h1>Wardrobe</h1>
+    <h2>Add item</h2>
     <form id="add-item-form" action="/api/wardrobe/items" method="POST">
       <input type="text" id="new-item-name" name="item_name" placeholder="Enter item name" required />
       <input type="text" id="new-item-desc" name="item_desc" placeholder="Enter item description" required />
       <button type="submit" id="add-item">ADD ITEM</button>
     </form>
   </div>
-
-  <div id="ootd">
-    <h4>Based on sensor readings</h4>
-    <h3>Outfit of the Day:</h3>
-  </div>
-
+  <h2>Inventory</h2>
   <div id="inventory"></div>
 
   <custom-footer></custom-footer>
 
-  <!-- Corrected script placements -->
+  <!-- Script placements -->
   <script type="module" src="/static/components/navbar.js"></script>
   <script type="module" src="/static/components/footer.js"></script>
   <script type="module" src="/static/wardrobe.js"></script>
 </body>
 </html>
+
