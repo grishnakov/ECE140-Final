@@ -807,25 +807,28 @@ def delete_clothing_item(item_id: int, current_user: dict = Depends(get_current_
     connection.close()
     return {"detail": "Clothing item deleted"}
 
+
 # -------------------------------
 # Dashboard Endpoints
 # -------------------------------
+
 
 @app.get("/api/location")
 def get_location(current_user: dict = Depends(get_current_user)):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
-    
+
     # Fetch user's location from `users` table
     cursor.execute("SELECT location FROM users WHERE id = %s", (current_user["id"],))
     location = cursor.fetchone()  # Fetch a single row
-    
+
     cursor.close()
     connection.close()
 
     if location:
         return {"location": location["location"]}
     return {"error": "Location not found"}
+
 
 @app.put("/api/location/{location}")
 def update_location(
