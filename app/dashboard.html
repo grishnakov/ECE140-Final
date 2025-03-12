@@ -1,20 +1,74 @@
+<!-- <!DOCTYPE html> -->
+<!-- <html lang="en"> -->
+<!-- <head> -->
+<!--   <meta charset="UTF-8"> -->
+<!--   <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+<!--   <title>Wearther - Dashboard</title> -->
+<!--   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+<!--   <link rel="stylesheet" href="/static/styles/dashboard.css"> <!-- Add a CSS file --> -->
+<!-- </head> -->
+<!-- <body> -->
+<!--   <custom-navbar currentPage="anchorToDashboard"></custom-navbar> -->
+<!---->
+<!--   <h1>DASHBOARD</h1> -->
+<!---->
+<!--   <!-- Weather Forecast Section --> -->
+<!--   <h2>WEATHER FORECAST</h2> -->
+<!--   <div id="weather"></div> <!-- This div will be populated dynamically --> -->
+<!---->
+<!--   <!-- Sensor Readings Section --> -->
+<!--   <h2>SENSOR READINGS</h2> -->
+<!--   <div id="sensors"> -->
+<!--     <section> -->
+<!--       <h2>Temperature Data</h2> -->
+<!--       <canvas id="temperatureChart"></canvas> -->
+<!--     </section> -->
+<!--     <section> -->
+<!--       <h2>Humidity Data</h2> -->
+<!--       <canvas id="humidityChart"></canvas> -->
+<!--     </section> -->
+<!--     <section> -->
+<!--       <h2>Light Data</h2> -->
+<!--       <canvas id="lightChart"></canvas> -->
+<!--     </section> -->
+<!--   </div> -->
+<!---->
+<!--   <custom-footer></custom-footer> -->
+<!---->
+<!--   <!-- Scripts --> -->
+<!--   <script type="module" src="/static/components/navbar.js"></script> -->
+<!--   <script type="module" src="/static/components/footer.js"></script> -->
+<!--   <script src="/static/weather.js"></script> <!-- Weather Script --> -->
+<!--   <script src="/static/sensors.js"></script> <!-- Dashboard Script --> -->
+<!-- </body> -->
+<!-- </html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wearther - Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="/static/styles/dashboard.css"> <!-- Add a CSS file -->
+  <link rel="stylesheet" href="/static/styles/dashboard.css" />
 </head>
 <body>
   <custom-navbar currentPage="anchorToDashboard"></custom-navbar>
   
   <h1>DASHBOARD</h1>
-  
+
+      <!-- Chat Section -->
+  <h2>Ask our Chat Bot to help you pick an outfit from your wardrobe:</h2>
+  <div id="chat">
+      <input type="text" id="chatInput" placeholder="Enter your prompt here" />
+      <button id="chatSubmit">Send</button>
+      <div id="chatResponse"></div>
+  </div>
+
   <!-- Weather Forecast Section -->
   <h2>WEATHER FORECAST</h2>
-  <div id="weather"></div> <!-- This div will be populated dynamically -->
+  <div id="weather"></div> <!-- This div will be populated dynamically with a grid -->
+  
+
   
   <!-- Sensor Readings Section -->
   <h2>SENSOR READINGS</h2>
@@ -39,6 +93,8 @@
   <script type="module" src="/static/components/navbar.js"></script>
   <script type="module" src="/static/components/footer.js"></script>
   <script src="/static/weather.js"></script> <!-- Weather Script -->
-  <script src="/static/sensors.js"></script> <!-- Dashboard Script -->
+  <script src="/static/sensors.js"></script> <!-- Sensors Script -->
+  <script src="/static/chat.js"></script> <!-- Chat Script -->
 </body>
 </html>
+
