@@ -43,7 +43,7 @@ def get_current_user(request: Request):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    clear_db()
+    # clear_db()
     init_db()  # Corrected function name
     yield
 
