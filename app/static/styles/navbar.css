@@ -2,25 +2,65 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: .2rem 2rem;
+  box-sizing: border-box;
+  position: fixed; /* Fix the navbar to the top */
+  top: 0;
+  left: 0;
+  width: 100%; /* Ensure it takes up the full width of the viewport */
+  z-index: 1000; /* Make sure it stays above other content */
   background: #f8f8f8;
 }
+/* Add padding to body to prevent navbar from overlapping content */
+body {
+  padding-top: 4rem; /* Adjust this value to match your navbar height */
+}
 
-.center-buttons,
-.right-buttons {
+/* Left Container: Usually for branding or logo */
+.left-container {
   display: flex;
-  gap: 1rem;
 }
 
-a, button {
-  text-decoration: none;
+/* Center Container: Contains the main navigation links */
+.center-container {
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  align-content: space-between;
+}
+
+.center-container a {
   color: #333;
-  background: none;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
+  text-decoration: none;
+  margin: 0 1rem;
+  font-weight: bold;
+  transition: color 0.3s ease, border-bottom 0.3s ease;
 }
 
-a:hover, button:hover {
-  text-decoration: underline;
+.center-container a:hover {
+  color: cornflowerblue;
+  border-bottom: 2px solid cornflowerblue;
+}
+
+/* Right Container: For user-related actions like Login, Logout, Profile */
+.right-container {
+  display: flex;
+  align-items: center;
+}
+
+.right-container a {
+  color: #333;
+  text-decoration: none;
+  margin-left: 1rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.right-container a:hover {
+  color: cornflowerblue;
+}
+
+/* Specific styling for Sign Out */
+.right-container a:active {
+  color: cornflowerblue;
 }

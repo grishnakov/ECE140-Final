@@ -807,6 +807,49 @@ def delete_clothing_item(item_id: int, current_user: dict = Depends(get_current_
     connection.close()
     return {"detail": "Clothing item deleted"}
 
+# -------------------------------
+# Dashboard Endpoints
+# -------------------------------
+
+@app.get("/api/location")
+def get_location(current_user: dict = Depends(get_current_user)):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    
+    # Fetch user's location from `users` table
+    cursor.execute("SELECT location FROM users WHERE id = %s", (current_user["id"],))
+    location = cursor.fetchone()  # Fetch a single row
+    
+    cursor.close()
+    connection.close()
+
+    if location:
+        return {"location": location["location"]}
+    return {"error": "Location not found"}
+
+@app.put("/api/location/{location}")
+def update_location(
+    location: str,
+    current_user: dict = Depends(get_current_user),
+):
+    update_query = "UPDATE users SET location = %s WHERE  id = %s"
+    params = (location, current_user["id"])
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(update_query, params)
+        connection.commit()
+
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        cursor.close()
+        connection.close()
+        return {"detail": "Location updated successfully"}
+    except Error:
+        raise HTTPException(status_code=500, detail="Database update error")
+
 
 # -------------------------------
 # Chat endpoints
@@ -821,7 +864,7 @@ class ChatRequest(BaseModel):
     weather: str
 
 
-SYSTEM_PROMPT = "You are a fashion assistant helping users pick clothes, read the user prompt, determine for when the user needs the outfit, and based on the items they have in the wradrobe, as well as the weathehr for the time period mentioned in the user prompt, suggest a few items they can wear. If there are not enough items, suggest generic items of clothing most people would have, but explicitly state that these items are assumed for the user to own. Available clothes and weather are as follows:\n"
+SYSTEM_PROMPT = "You are a fashion assistant helping users pick clothes, read the user prompt, determine for when the user needs the outfit, and based on the items they have in the wradrobe, as well as the weather for the time period mentioned in the user prompt, suggest a few items they can wear. Keep your response short and if there are not enough items, suggest generic items of clothing most people would have, but explicitly state that these items are assumed for the user to own. Available clothes and weather are as follows:\n"
 
 
 @app.post("/chat")

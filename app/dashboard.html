@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wearther - Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
   <link rel="stylesheet" href="/static/styles/dashboard.css" />
+  <link rel="stylesheet" href="/static/styles/global.css" />
+
 </head>
 <body>
   <custom-navbar currentPage="anchorToDashboard"></custom-navbar>
@@ -15,11 +17,12 @@
   <h1>DASHBOARD</h1>
 
   <!-- Chat Section -->
-  <h2>Ask our Chat Bot to help you pick an outfit from your wardrobe:</h2>
   <div id="chat">
-      <input type="text" id="chatInput" placeholder="Enter your prompt here" />
-      <button id="chatSubmit">Send</button>
-      <div id="chatResponse"></div>
+    <h2>Ask our Chat Bot to help you pick an outfit from your wardrobe:</h2>
+    <span><input type="text" id="chatInput" placeholder="Enter your prompt here" value="What should I wear today?"/>
+    <button id="chatSubmit">Send</button>
+    </span>
+    <div id="chatResponse" markdown="1" style="display: none;"></div>
   </div>
 
   <!-- Weather Forecast Section -->

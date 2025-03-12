@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Mate&display=swap');
+
+span {
+  margin: 0;
+  display: flex;
+  justify-content: space-between; /* Place items at opposite ends */
+  align-items: center; /* Vertically center the items */
+  padding: .5rem 0rem 0rem 0rem;
+}
+
+h2 {
+  margin: 0; /* Remove default margin */
+}
+
+form {
+  display: flex;
+  align-items: center;
+}
+
+form input {
+  font-family: 'Mate', serif;
+  margin-right: 0.5rem; /* Space between input and button */
+}
+
+button{
+  font-family: 'Mate', serif;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+.logout-form {
+  margin: 0;
+}
+.logout-button {
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.logout-button:hover {
+  background-color: #d32f2f;
+}

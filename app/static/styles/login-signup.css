@@ -1,0 +1,144 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Mate&display=swap');
+
+/* General Page Styling */
+body {
+    font-family: 'Mate', serif;
+    background-color: white;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+/* Title Styling */
+h1 {
+    font-size: 2rem; /* Root-relative scaling */
+    color: #0077b6;
+    margin-bottom: 0.5em;
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: #555;
+}
+
+h3 {
+  text-align: left;
+    font-size: 1.2rem;
+    margin-bottom: 1em;
+}
+
+/* Form Styling */
+form {
+    background: white;
+    padding: 1.5em;
+    border-radius: 20px;
+    border: 1px solid #000000;
+    width: 22em; /* Scales with font size */
+    display: flex;
+    flex-direction: column;
+}
+
+form div {
+    margin: 0.625em 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    display: block;
+    font-size: 1rem;
+    font-weight: bold;
+    align-self: flex-start;
+    text-align: left;
+}
+
+input {
+    width: 80%;
+    padding: 0.625em;
+    margin-top: 0.3125em;
+    margin-left: 1em;
+    margin-right: 1em;
+
+    border: 0.0625em solid #ccc;
+    border-radius: 0.3125em;
+    font-size: 1rem;
+
+}
+
+/* Button Styling */
+button {
+  font-family: 'Mate', serif;
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 0.625em 1em;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 0.3125em;
+  margin-top: 0.625em;
+  transition: 0.3s;
+}
+
+button:hover {
+    background-color: #005f8a;
+}
+
+button[type="submit"]{
+  width: fit-content;
+  align-self: center;
+  padding-left: 2em;
+  padding-right: 2em;
+
+}
+
+/* Signup & Login Button Variants */
+span {
+  margin-top: 1em;
+  display: flex;
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  gap: 0.5em; /* Space between items */
+}
+
+span p,
+span a {
+  margin: 0; /* Remove default margin to ensure better alignment */
+}
+
+.signup, .login {
+  margin:0;
+  text-align: center; /* Ensure text inside the button is centered */
+  color:#000000;
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  padding: 0.1em 1em;
+  font-size: 1rem;
+}
+
+
+.signup button {
+    background-color: #34a853;
+}
+
+.signup button:hover {
+    background-color: #2b8a3e;
+}
+
+.login button {
+    background-color: #fbbc05;
+}
+
+.login button:hover {
+    background-color: #e09b00;
+}
+
+

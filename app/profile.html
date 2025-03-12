@@ -1,35 +1,12 @@
-<!-- <!DOCTYPE html> -->
-<!-- <html lang="en"> -->
-<!-- <head> -->
-<!--   <meta charset="UTF-8"> -->
-<!--   <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-<!--   <title>Wearther - Profile</title> -->
-<!-- </head> -->
-<!-- <body> -->
-<!--   <custom-navbar currentPage="anchorToProfile"></custom-navbar> -->
-<!---->
-<!--   <form id="add-device-form"  method="POST"> -->
-<!--     <input type="number" id="new-device" name="device" placeholder="Enter device ID" required /> -->
-<!--     <button type="submit">Add Device</button> -->
-<!--   </form> -->
-<!---->
-<!--   <h2>Registered Devices</h2> -->
-<!--   <div id="reg-devices"> -->
-<!--   </div> -->
-<!--   <custom-footer></custom-footer> -->
-<!---->
-<!--   <script type="module" src="/static/components/navbar.js"></script> -->
-<!--   <script type="module" src="/static/components/footer.js"></script> -->
-<!--   <script type="module" src="/static/components/device.js"></script> -->
-<!--   <script type="module" src="/static/profile.js"></script> -->
-<!-- </body> -->
-<!-- </html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wearther - Profile</title>
+  <link rel="stylesheet" href="/static/styles/profile.css" />
+  <link rel="stylesheet" href="/static/styles/global.css" />
+
   <style>
     /* Container that holds all device tiles */
     #reg-devices {
@@ -42,12 +19,16 @@
 <body>
   <custom-navbar currentPage="anchorToProfile"></custom-navbar>
 
+  <h1>Profile</h1>
+
+
+  <span>
+    <h2>Registered Devices</h2>
   <form id="add-device-form" method="POST">
     <input type="number" id="new-device" name="device" placeholder="Enter device ID" required />
     <button type="submit">Add Device</button>
   </form>
-
-  <h2>Registered Devices</h2>
+  </span>
   <div id="reg-devices">
     <!-- Device tiles will be appended here -->
   </div>

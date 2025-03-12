@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const data = await response.json();
             // Assuming the response JSON has a 'response' field with the LLM's answer
+            chatResponse.style = "";
             chatResponse.innerText = data.response;
         } catch (error) {
             console.error("Chat request error:", error);
