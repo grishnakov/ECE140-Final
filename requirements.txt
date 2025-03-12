@@ -9,3 +9,4 @@ paho-mqtt
 numpy
 requests
 openai
+matplotlib

@@ -122,4 +122,4 @@ def mqtt_listener():
 
 
 if __name__ == "__main__":
-    main()
+    mqtt_listener()
