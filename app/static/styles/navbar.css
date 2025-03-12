@@ -1,0 +1,26 @@
+#navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #f8f8f8;
+}
+
+.center-buttons,
+.right-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+a, button {
+  text-decoration: none;
+  color: #333;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+a:hover, button:hover {
+  text-decoration: underline;
+}
