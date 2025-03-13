@@ -1,6 +1,6 @@
 # ECE140-WI25-FinalProject
 
-Template (starter code) for tech assignments 5 for ECE 140A, Winter 2025. We plan to use the same repository for tech assignments 6 and 7, so make sure you organize your code well!
+## [Final Tech Assignment Deployed Link](https://ece140-final.onrender.com/)
 
 ## Tech Assignment 6 Video:
 [Submission video](https://youtu.be/WZ7dxrSwV9E?feature=shared)
