@@ -53,7 +53,7 @@ class Navbar extends HTMLElement {
       anchorSignOut.href = "/signout"; // Or a dedicated /logout endpoint if desired
       anchorSignOut.innerText = "Sign Out";
       anchorSignOut.addEventListener("click", (e) => {
-        e.preventDefault();
+        // e.preventDefault();
         // Example: remove login flag, redirect to home
         localStorage.setItem("isLoggedIn", "false");
         window.location.href = "/";
