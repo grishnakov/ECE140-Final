@@ -50,7 +50,7 @@ class Navbar extends HTMLElement {
 
       // RIGHT: Sign Out
       const anchorSignOut = document.createElement("a");
-      anchorSignOut.href = "#"; // Or a dedicated /logout endpoint if desired
+      anchorSignOut.href = "/signout"; // Or a dedicated /logout endpoint if desired
       anchorSignOut.innerText = "Sign Out";
       anchorSignOut.addEventListener("click", (e) => {
         e.preventDefault();
