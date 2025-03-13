@@ -480,12 +480,26 @@ def signin(
     return response
 
 
+# @app.post("/signout")
+# def signout(response: Response, request: Request):
+#     session_token = request.cookies.get("session_token")
+#     if session_token and session_token in sessions:
+#         sessions.pop(session_token)
+#     response.delete_cookie(key="session_token")
+#
+#     response_html = """
+#     <script>
+#         localStorage.removeItem("isLoggedIn");
+#         window.location.href = "/login";
+#     </script>
+#     """
+#
+#     return HTMLResponse(content=response_html)
 @app.post("/signout")
-def signout(response: Response, request: Request):
+def signout(request: Request):
     session_token = request.cookies.get("session_token")
     if session_token and session_token in sessions:
         sessions.pop(session_token)
-    response.delete_cookie(key="session_token")
 
     response_html = """
     <script>
@@ -493,8 +507,10 @@ def signout(response: Response, request: Request):
         window.location.href = "/login";
     </script>
     """
-
-    return HTMLResponse(content=response_html)
+    # Create the response and delete the cookie on it
+    response = HTMLResponse(content=response_html)
+    response.delete_cookie(key="session_token")
+    return response
 
 
 # -------------------------------
