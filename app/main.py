@@ -495,7 +495,7 @@ def signin(
 #     """
 #
 #     return HTMLResponse(content=response_html)
-@app.post("/signout")
+@app.get("/signout")
 def signout(request: Request):
     session_token = request.cookies.get("session_token")
     if session_token and session_token in sessions:
